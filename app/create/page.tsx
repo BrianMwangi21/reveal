@@ -157,6 +157,14 @@ export default function CreateRoomPage() {
             <p className="text-sm mb-2">Share this code with your guests:</p>
             <p className="text-5xl font-bold tracking-wider">{createdRoom.code}</p>
           </div>
+          <Button
+            onClick={() => navigator.clipboard.writeText(createdRoom.code)}
+            variant="outline"
+            size="md"
+            className="w-full mb-3"
+          >
+            Copy Code
+          </Button>
           <div className="flex flex-col gap-3">
             <Button
               onClick={() => router.push(`/rooms/${createdRoom.code}`)}

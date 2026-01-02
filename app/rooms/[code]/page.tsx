@@ -96,6 +96,10 @@ export default function RoomPage() {
     );
   }
 
+  if (!room) {
+    return null;
+  }
+
   const timeUntilReveal = new Date(room!.revealTime).getTime() - new Date().getTime();
   const isRevealed = room!.status === 'revealed';
 

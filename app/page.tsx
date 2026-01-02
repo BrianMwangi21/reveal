@@ -18,7 +18,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/rooms/${roomCode}`, {
+      const response = await fetch(`/api/rooms/${roomCode.toUpperCase()}`, {
         method: 'GET',
       });
 
@@ -36,7 +36,7 @@ export default function Home() {
         return;
       }
 
-      router.push(`/rooms/${roomCode}/join`);
+      router.push(`/rooms/${roomCode.toUpperCase()}/join`);
     } catch {
       setError('Failed to join room');
       setLoading(false);
@@ -73,7 +73,7 @@ export default function Home() {
                 type="text"
                 placeholder="Enter room code..."
                 value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                onChange={(e) => setRoomCode(e.target.value)}
                 className="text-center text-lg"
               />
             </div>
