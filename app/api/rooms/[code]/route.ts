@@ -11,10 +11,10 @@ export async function GET(
     const { code } = await params;
 
     getRoomSchema.parse({ code });
-
+ 
     await connectDB();
-
-    const room = await Room.findOne({ code });
+ 
+    const room = await Room.findOne({ code: code.toUpperCase() });
 
     if (!room) {
       return NextResponse.json(

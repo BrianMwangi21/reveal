@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     const room = await Room.create({
       name: validatedData.name,
-      code,
+      code: code.toUpperCase(),
       revealTime: new Date(validatedData.revealTime),
       revealType: validatedData.revealType,
       revealContent: validatedData.revealContent,
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     await Guest.create({
       guestId: validatedData.host.id,
-      roomCode: code,
+      roomCode: code.toUpperCase(),
       nickname: validatedData.host.nickname,
       host: true,
     });
