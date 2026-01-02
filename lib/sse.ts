@@ -8,6 +8,7 @@ type SSEEventType =
   | 'activity_created'
   | 'activity_deleted'
   | 'countdown_milestone'
+  | 'reveal_triggered'
   | 'keepalive';
 
 interface SSEEvent<T = any> {
@@ -73,6 +74,16 @@ interface ActivityDeletedData {
   roomCode: string;
 }
 
+interface RevealTriggeredData {
+  roomCode: string;
+  revealType: string;
+  revealContent: {
+    type: 'text' | 'image' | 'video';
+    value: string;
+    caption?: string;
+  };
+}
+
 interface CountdownMilestoneData {
   remainingSeconds: number;
   milestone: '1min' | '10sec' | '5sec';
@@ -92,6 +103,7 @@ type SSEEventDataMap = {
   activity_created: ActivityCreatedData;
   activity_deleted: ActivityDeletedData;
   countdown_milestone: CountdownMilestoneData;
+  reveal_triggered: RevealTriggeredData;
   keepalive: KeepaliveData;
 };
 
@@ -194,6 +206,7 @@ export type {
   MessageReactedData,
   ActivityCreatedData,
   ActivityDeletedData,
+  RevealTriggeredData,
   CountdownMilestoneData,
   KeepaliveData,
   SSEEventDataMap,
