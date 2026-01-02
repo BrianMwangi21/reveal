@@ -52,6 +52,7 @@ export default function RoomPage() {
   const [error, setError] = useState('');
   const [isRevealed, setIsRevealed] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   const session = getGuestSession();
   const isHost = room?.host.id === session?.guestId;
@@ -65,7 +66,7 @@ export default function RoomPage() {
     },
     onRevealTriggered: () => {
       setRoom((prev) => prev ? { ...prev, status: 'revealed' } : null);
-      setIsRevealed(true);
+      startCountdownSequence();
     },
   });
 
@@ -166,6 +167,21 @@ export default function RoomPage() {
     return null;
   }
 
+  const startCountdownSequence = () => {
+    setCountdown(10);
+    let count = 10;
+    const interval = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        setCountdown(count);
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        setIsRevealed(true);
+      }
+    }, 1000);
+  };
+
   const handleReveal = async () => {
     if (!session) return;
     setIsRevealing(true);
@@ -183,7 +199,7 @@ export default function RoomPage() {
         throw new Error(result.error || 'Failed to trigger reveal');
       }
 
-      setIsRevealed(true);
+      startCountdownSequence();
       setRoom((prev) => prev ? { ...prev, status: 'revealed' } : null);
     } catch (err) {
       console.error('Error triggering reveal:', err);
@@ -326,19 +342,30 @@ export default function RoomPage() {
           ))}
           </div>
 
-          {!isRevealed && (
+          {!isRevealed && !countdown && (
             <div className="mb-8">
               <Countdown 
                 revealTime={new Date(room!.revealTime)} 
                 onReveal={() => {
-                  setIsRevealed(true);
                   setRoom((prev) => prev ? { ...prev, status: 'revealed' } : null);
+                  startCountdownSequence();
                 }}
               />
             </div>
           )}
 
-          {isHost && !isRevealed && (
+          {countdown !== null && (
+            <div className="mb-8 flex flex-col items-center justify-center">
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 animate-pulse">
+                Get Ready!
+              </p>
+              <div className="text-9xl sm:text-[12rem] font-extrabold bg-gradient-to-r from-purple via-pink to-blue bg-clip-text text-transparent animate-bounce">
+                {countdown}
+              </div>
+            </div>
+          )}
+
+          {isHost && !isRevealed && !countdown && (
             <div className="mb-8 flex justify-center">
               <Button
                 onClick={handleReveal}
