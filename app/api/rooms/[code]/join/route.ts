@@ -20,7 +20,7 @@ export async function POST(
 
     await connectDB();
 
-    const room = await Room.findOne({ code });
+    const room = await Room.findOne({ code: code.toUpperCase() });
 
     if (!room) {
       return NextResponse.json(
@@ -44,7 +44,7 @@ export async function POST(
       );
     }
 
-    const existingGuest = await Guest.findOne({ roomCode: code, nickname });
+    const existingGuest = await Guest.findOne({ roomCode: code.toUpperCase(), nickname });
 
     if (existingGuest) {
       return NextResponse.json(
@@ -60,13 +60,13 @@ export async function POST(
 
     const guest = await Guest.create({
       guestId,
-      roomCode: code,
+      roomCode: code.toUpperCase(),
       nickname,
       host: false,
     });
 
     sseManager.broadcastToRoom(
-      code,
+      code.toUpperCase(),
       'guest_joined',
       {
         guestId: guest.guestId,

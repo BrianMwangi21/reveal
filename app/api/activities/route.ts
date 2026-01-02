@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const activities = await Activity.find({ roomCode }).sort({ createdAt: 1 });
+    const activities = await Activity.find({ roomCode: roomCode.toUpperCase() }).sort({ createdAt: 1 });
 
     return NextResponse.json({ data: activities });
   } catch (error) {
@@ -37,21 +37,21 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    const activityId = `${roomCode}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const activityId = `${roomCode.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     const activity = await Activity.create({
       activityId,
-      roomCode,
+      roomCode: roomCode.toUpperCase(),
       type,
       title,
     });
 
     sseManager.broadcastToRoom(
-      roomCode,
+      roomCode.toUpperCase(),
       'activity_created',
       {
         activityId,
-        roomCode,
+        roomCode: roomCode.toUpperCase(),
         type: type as 'bet' | 'closestGuess' | 'message',
         title,
       }

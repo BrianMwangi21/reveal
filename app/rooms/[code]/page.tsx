@@ -305,6 +305,15 @@ export default function RoomPage() {
             </div>
           )}
 
+          {isRevealed && !countdown && (
+            <div className="mb-8">
+              <RevealDisplay
+                revealType={room!.revealType as RevealType}
+                revealContent={room!.revealContent as { type: 'text' | 'image' | 'video'; value: string; caption?: string }}
+              />
+            </div>
+          )}
+
           {isHost && !isRevealed && !countdown && (
             <div className="mb-8 flex justify-center">
               <Button
@@ -385,15 +394,6 @@ export default function RoomPage() {
             </div>
           ))}
           </div>
-
-          {isRevealed && (
-            <div className="mb-8">
-              <RevealDisplay 
-                revealType={room!.revealType as RevealType}
-                revealContent={room!.revealContent as { type: 'text' | 'image' | 'video'; value: string; caption?: string }}
-              />
-            </div>
-          )}
 
           <div className="flex justify-center gap-4">
             <Button
