@@ -61,14 +61,14 @@ Allow guests to join rooms using the room code and register their nickname.
 - **Duplicate Prevention**: Prevent duplicate nicknames in same room
 
 ### Tasks
-- [ ] Create homepage with room code input
-- [ ] Implement room validation API (`GET /api/rooms/[code]`)
-- [ ] Design nickname entry form
-- [ ] Add guest registration API (`POST /api/rooms/[code]/join`)
-- [ ] Display guest list in room
-- [ ] Handle room not found / expired room cases
-- [ ] Add guest count indicator
-- [ ] Prevent duplicate nicknames in same room
+- [x] Create homepage with room code input
+- [x] Implement room validation API (`GET /api/rooms/[code]`)
+- [x] Design nickname entry form
+- [x] Add guest registration API (`POST /api/rooms/[code]/join`)
+- [x] Display guest list in room
+- [x] Handle room not found / expired room cases
+- [x] Add guest count indicator
+- [x] Prevent duplicate nicknames in same room
 
 ### Deliverables
 - Homepage at `app/page.tsx`
@@ -77,10 +77,12 @@ Allow guests to join rooms using the room code and register their nickname.
 - Guest schema/model in `lib/models/Guest.ts`
 
 ### Definition of Done
-- Guests can enter room code to find room
-- Nickname registration works with duplicate prevention
-- Guest list displays in room
-- Error handling for invalid codes
+- [x] Guests can enter room code to find room
+- [x] Nickname registration works with duplicate prevention
+- [x] Guest list displays in room
+- [x] Error handling for invalid codes
+
+**Status**: ✅ Completed - January 2, 2026
 
 ---
 
