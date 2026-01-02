@@ -5,6 +5,10 @@ import { useParams, useRouter } from 'next/navigation';
 import Button from '@/app/components/ui/Button';
 import { getGuestSession } from '@/lib/utils/guestUtils';
 import GuestList from '@/app/components/reveal/GuestList';
+import ActivityCreator from '@/app/components/reveal/ActivityCreator';
+import BetComponent from '@/app/components/reveal/Bet';
+import ClosestGuessComponent from '@/app/components/reveal/ClosestGuess';
+import MessageBoard from '@/app/components/reveal/MessageBoard';
 
 interface RoomData {
   id: string;
@@ -27,13 +31,24 @@ interface RoomData {
   updatedAt: string;
 }
 
+interface Activity {
+  activityId: string;
+  roomCode: string;
+  type: string;
+  title: string;
+}
+
 export default function RoomPage() {
   const params = useParams();
   const router = useRouter();
   const code = params.code as string;
   const [room, setRoom] = useState<RoomData | null>(null);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const session = getGuestSession();
+  const isHost = room?.host.id === session?.guestId;
 
   useEffect(() => {
     const fetchRoom = async () => {
@@ -59,6 +74,18 @@ export default function RoomPage() {
       }
     };
 
+    const fetchActivities = async () => {
+      try {
+        const response = await fetch(`/api/activities?roomCode=${code}`);
+        const result = await response.json();
+        if (result.success || result.data) {
+          setActivities(result.data || []);
+        }
+      } catch (err) {
+        console.error('Error fetching activities:', err);
+      }
+    };
+
     const pingCurrentGuest = async () => {
       const session = getGuestSession();
       if (!session) return;
@@ -75,8 +102,13 @@ export default function RoomPage() {
     };
 
     fetchRoom();
+    fetchActivities();
     const pingInterval = setInterval(pingCurrentGuest, 30000);
-    return () => clearInterval(pingInterval);
+    const activityInterval = setInterval(fetchActivities, 5000);
+    return () => {
+      clearInterval(pingInterval);
+      clearInterval(activityInterval);
+    };
   }, [code, router]);
 
   if (isLoading) {
@@ -121,11 +153,11 @@ export default function RoomPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue">
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
-          <div className="text-center mb-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 sm:p-8 max-w-4xl mx-auto">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-6 py-2 rounded-full text-lg font-semibold">
+              <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-4 sm:px-6 py-2 rounded-full text-base sm:text-lg font-semibold">
                 {room!.code.toUpperCase()}
               </div>
               <button
@@ -138,51 +170,109 @@ export default function RoomPage() {
                 </svg>
               </button>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
               {room!.name}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Hosted by {room!.host.nickname}
             </p>
+            {session && (
+              <p className="mt-2 text-pink font-semibold">
+                You: {session.nickname}
+              </p>
+            )}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-900 dark:text-white">
                 Reveal Type
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 capitalize">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 capitalize">
                 {room!.revealType}
               </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-900 dark:text-white">
                 Status
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 capitalize">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 capitalize">
                 {room!.status}
               </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 md:col-span-2">
-              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6 md:col-span-2">
+              <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-900 dark:text-white">
                 Scheduled Reveal
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 {new Date(room!.revealTime).toLocaleString()}
               </p>
             </div>
           </div>
 
-          <div className="mb-8">
-            <GuestList roomCode={code} />
+          {isHost && (
+            <div className="mb-6 sm:mb-8 flex justify-end">
+              <ActivityCreator roomCode={code} onActivityCreated={() => {
+                fetch(`/api/activities?roomCode=${code}`)
+                  .then((res) => res.json())
+                  .then((result) => setActivities(result.data || []));
+              }} />
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 sm:mb-8">
+            <div className="mb-8">
+              <GuestList roomCode={code} />
+            </div>
+
+          {activities.map((activity) => (
+            <div key={activity.activityId}>
+              {activity.type === 'bet' && (
+                <BetComponent
+                  activityId={activity.activityId}
+                  title={activity.title}
+                  isHost={isHost}
+                  onDelete={() => {
+                    fetch(`/api/activities?roomCode=${code}`)
+                      .then((res) => res.json())
+                      .then((result) => setActivities(result.data || []));
+                  }}
+                />
+              )}
+              {activity.type === 'closestGuess' && (
+                <ClosestGuessComponent
+                  activityId={activity.activityId}
+                  title={activity.title}
+                  isHost={isHost}
+                  onDelete={() => {
+                    fetch(`/api/activities?roomCode=${code}`)
+                      .then((res) => res.json())
+                      .then((result) => setActivities(result.data || []));
+                  }}
+                />
+              )}
+              {activity.type === 'message' && (
+                <MessageBoard
+                  activityId={activity.activityId}
+                  title={activity.title}
+                  isHost={isHost}
+                  onDelete={() => {
+                    fetch(`/api/activities?roomCode=${code}`)
+                      .then((res) => res.json())
+                      .then((result) => setActivities(result.data || []));
+                  }}
+                />
+              )}
+            </div>
+          ))}
           </div>
 
           {!isRevealed && timeUntilReveal > 0 && (
-            <div className="bg-gradient-to-r from-purple to-pink rounded-2xl p-6 text-center text-white mb-6">
-              <p className="text-sm mb-2">Time until reveal:</p>
-              <p className="text-3xl font-bold">
+            <div className="bg-gradient-to-r from-purple to-pink rounded-2xl p-4 sm:p-6 text-center text-white mb-4 sm:mb-6">
+              <p className="text-xs sm:text-sm mb-2">Time until reveal:</p>
+              <p className="text-xl sm:text-3xl font-bold">
                 {Math.floor(timeUntilReveal / (1000 * 60 * 60 * 24))}d{' '}
                 {Math.floor((timeUntilReveal % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))}h{' '}
                 {Math.floor((timeUntilReveal % (1000 * 60 * 60)) / (1000 * 60))}m
@@ -191,11 +281,11 @@ export default function RoomPage() {
           )}
 
           {isRevealed && (
-            <div className="bg-gradient-to-r from-gold via-pink to-blue rounded-2xl p-8 text-center text-white mb-6">
-              <p className="text-lg mb-4">🎉 Reveal! 🎉</p>
-              <p className="text-3xl font-bold mb-2">{room!.revealContent.value}</p>
+            <div className="bg-gradient-to-r from-gold via-pink to-blue rounded-2xl p-6 sm:p-8 text-center text-white mb-4 sm:mb-6">
+              <p className="text-base sm:text-lg mb-4">🎉 Reveal! 🎉</p>
+              <p className="text-2xl sm:text-3xl font-bold mb-2">{room!.revealContent.value}</p>
               {room!.revealContent.caption && (
-                <p className="text-lg">{room!.revealContent.caption}</p>
+                <p className="text-base sm:text-lg">{room!.revealContent.caption}</p>
               )}
             </div>
           )}

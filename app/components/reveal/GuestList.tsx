@@ -75,27 +75,36 @@ export default function GuestList({ roomCode }: GuestListProps) {
         <p className="text-gray-500 dark:text-gray-400">No guests yet</p>
       ) : (
         <div className="space-y-2">
-          {guests.map((guest) => (
-            <div
-              key={guest.guestId}
-              className="flex items-center justify-between bg-white dark:bg-gray-700 rounded-lg p-3"
-            >
-              <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${
-                  isOnline(guest.lastActive) ? 'bg-green-500' : 'bg-gray-400'
-                }`} />
-                <span className="text-gray-900 dark:text-white font-medium">
-                  {guest.nickname}
+          {guests.map((guest) => {
+            const session = getGuestSession();
+            const isCurrentUser = session?.guestId === guest.guestId;
+            return (
+              <div
+                key={guest.guestId}
+                className={`flex items-center justify-between rounded-lg p-3 ${
+                  isCurrentUser
+                    ? 'bg-pink/10 border-2 border-pink'
+                    : 'bg-white dark:bg-gray-700'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    isOnline(guest.lastActive) ? 'bg-green-500' : 'bg-gray-400'
+                  }`} />
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    {guest.nickname}
+                    {isCurrentUser && <span className="ml-2 text-sm text-pink font-medium">(You)</span>}
+                  </span>
+                </div>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {new Date(guest.joinedAt).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
                 </span>
               </div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {new Date(guest.joinedAt).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

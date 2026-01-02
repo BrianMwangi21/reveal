@@ -124,25 +124,32 @@ Enable interactive activities for guests before the reveal happens.
 - "Memory Wall" - shared memories/photos (optional)
 
 ### Tasks
-- [ ] Design activity schemas (polls, predictions, messages)
-- [ ] Create activity management API endpoints
-- [ ] Build voting poll component with live results
-- [ ] Build prediction pool component
-- [ ] Build message board component with reactions
-- [ ] Add activity creation UI for hosts (before guests join)
-- [ ] Implement real-time updates for activities
+- [x] Design activity schemas (Bet, ClosestGuess, Message)
+- [x] Create activity management API endpoints
+- [x] Build Bet Your Points component (with live results display)
+- [x] Build Closest Guess component
+- [x] Build Message Board component with reactions
+- [x] Add activity creation UI for hosts
+- [x] Implement activity deletion for hosts
+- [x] Add current user nickname display in room header
+- [x] Highlight current user in GuestList component
+- [x] Mobile-first responsive design for all components
 
 ### Deliverables
-- Activity models in `lib/models/` (Poll, Prediction, Message)
+- Activity models in `lib/models/` (Activity, Bet, ClosestGuess, Message)
 - Activity APIs in `app/api/activities/`
-- Activity components in `app/components/reveal/`
+- Activity components in `app/components/reveal/` (Bet, ClosestGuess, MessageBoard, ActivityCreator)
 - Activity management page for hosts
 
 ### Definition of Done
-- Hosts can create activities (polls, prediction pools, message boards)
-- Guests can participate in all activities
-- Activity results update in real-time
-- Activities lock when reveal time arrives
+- [x] Hosts can create activities (bet, closest guess, message board)
+- [x] Guests can participate in all activities
+- [x] Current user is highlighted in UI
+- [x] Activities can be deleted by hosts
+- [x] Mobile-first responsive design implemented
+- [ ] Real-time updates (Phase 4)
+
+**Status**: ✅ Completed - January 3, 2026
 
 ---
 

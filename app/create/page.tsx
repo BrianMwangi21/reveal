@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
 import Select from '@/app/components/ui/Select';
+import { saveGuestSession } from '@/lib/utils/guestUtils';
 
 const REVEAL_TYPE_OPTIONS = [
   { value: 'gender', label: 'Gender Reveal' },
@@ -100,21 +101,22 @@ export default function CreateRoomPage() {
       const result = await response.json();
 
       if (!response.ok) {
+        console.error('Validation error details:', result.details);
         if (result.details) {
-          const newErrors: Record<string, string> = {};
-          result.details.split('. ').forEach((error: string) => {
-            const match = error.match(/(\w+)\s*-\s*(.+)/);
-            if (match) {
-              newErrors[match[1].toLowerCase()] = match[2];
-            }
-          });
-          setErrors(newErrors);
+          alert(`Validation Error: ${result.details}`);
         }
         throw new Error(result.error || 'Failed to create room');
       }
 
       localStorage.setItem('reveal_host_id', hostIdToUse);
       localStorage.setItem('reveal_host_nickname', nicknameToUse);
+
+      saveGuestSession({
+        guestId: hostIdToUse,
+        roomCode: result.data.code,
+        nickname: nicknameToUse,
+        host: true,
+      });
 
       setCreatedRoom({
         code: result.data.code,

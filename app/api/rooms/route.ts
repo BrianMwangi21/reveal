@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Room from '@/lib/models/Room';
+import Guest from '@/lib/models/Guest';
 import { createRoomSchema } from '@/lib/validations/room';
 import { generateUniqueRoomCode } from '@/lib/utils/generateRoomCode';
+import { ZodError } from 'zod';
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,6 +29,13 @@ export async function POST(request: NextRequest) {
       status: 'upcoming',
     });
 
+    await Guest.create({
+      guestId: validatedData.host.id,
+      roomCode: code,
+      nickname: validatedData.host.nickname,
+      host: true,
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -37,18 +46,20 @@ export async function POST(request: NextRequest) {
           revealTime: room.revealTime,
           revealType: room.revealType,
           host: room.host,
+          guestId: validatedData.host.id,
           status: room.status,
         },
       },
       { status: 201 }
     );
   } catch (error) {
-    if (error instanceof Error && error.name === 'ZodError') {
+    console.error('Error creating room:', error);
+    if (error instanceof ZodError) {
       return NextResponse.json(
         {
           success: false,
           error: 'Validation failed',
-          details: error.message,
+          details: error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('. '),
         },
         { status: 400 }
       );
