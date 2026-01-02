@@ -114,6 +114,10 @@ export default function JoinRoomPage() {
     );
   }
 
+  if (!room) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-md w-full">
