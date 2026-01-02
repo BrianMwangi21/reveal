@@ -18,7 +18,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/rooms/${roomCode.toUpperCase()}`, {
+      const response = await fetch(`/api/rooms/${roomCode}`, {
         method: 'GET',
       });
 
@@ -36,7 +36,7 @@ export default function Home() {
         return;
       }
 
-      router.push(`/rooms/${roomCode.toUpperCase()}/join`);
+      router.push(`/rooms/${roomCode}/join`);
     } catch {
       setError('Failed to join room');
       setLoading(false);
