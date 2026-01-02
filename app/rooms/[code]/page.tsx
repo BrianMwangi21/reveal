@@ -10,6 +10,8 @@ import ActivityCreator from '@/app/components/reveal/ActivityCreator';
 import BetComponent from '@/app/components/reveal/Bet';
 import ClosestGuessComponent from '@/app/components/reveal/ClosestGuess';
 import MessageBoard from '@/app/components/reveal/MessageBoard';
+import Countdown from '@/app/components/reveal/Countdown';
+import RevealDisplay from '@/app/components/reveal/RevealDisplay';
 
 interface RoomData {
   id: string;
@@ -47,6 +49,8 @@ export default function RoomPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [isRevealing, setIsRevealing] = useState(false);
 
   const session = getGuestSession();
   const isHost = room?.host.id === session?.guestId;
@@ -57,6 +61,10 @@ export default function RoomPage() {
     },
     onActivityDeleted: (data) => {
       setActivities((prev) => prev.filter((a) => a.activityId !== data.activityId));
+    },
+    onRevealTriggered: (data) => {
+      setRoom((prev) => prev ? { ...prev, status: 'revealed' } : null);
+      setIsRevealed(true);
     },
   });
 
@@ -73,6 +81,7 @@ export default function RoomPage() {
         }
 
         setRoom(result.data);
+        setIsRevealed(result.data.status === 'revealed');
 
         if (!session || session.roomCode !== code) {
           router.push(`/rooms/${code}/join`);
@@ -157,7 +166,33 @@ export default function RoomPage() {
   }
 
   const timeUntilReveal = new Date(room!.revealTime).getTime() - new Date().getTime();
-  const isRevealed = room!.status === 'revealed';
+
+  const handleReveal = async () => {
+    if (!session) return;
+    setIsRevealing(true);
+
+    try {
+      const response = await fetch(`/api/rooms/${code}/reveal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guestId: session.guestId }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to trigger reveal');
+      }
+
+      setIsRevealed(true);
+      setRoom((prev) => prev ? { ...prev, status: 'revealed' } : null);
+    } catch (err) {
+      console.error('Error triggering reveal:', err);
+      alert(err instanceof Error ? err.message : 'Failed to trigger reveal');
+    } finally {
+      setIsRevealing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue">
@@ -254,6 +289,7 @@ export default function RoomPage() {
                   activityId={activity.activityId}
                   title={activity.title}
                   isHost={isHost}
+                  isRevealed={isRevealed}
                   onDelete={() => {
                     fetch(`/api/activities?roomCode=${code}`)
                       .then((res) => res.json())
@@ -266,6 +302,7 @@ export default function RoomPage() {
                   activityId={activity.activityId}
                   title={activity.title}
                   isHost={isHost}
+                  isRevealed={isRevealed}
                   onDelete={() => {
                     fetch(`/api/activities?roomCode=${code}`)
                       .then((res) => res.json())
@@ -278,6 +315,7 @@ export default function RoomPage() {
                   activityId={activity.activityId}
                   title={activity.title}
                   isHost={isHost}
+                  isRevealed={isRevealed}
                   onDelete={() => {
                     fetch(`/api/activities?roomCode=${code}`)
                       .then((res) => res.json())
@@ -289,24 +327,45 @@ export default function RoomPage() {
           ))}
           </div>
 
-          {!isRevealed && timeUntilReveal > 0 && (
-            <div className="bg-gradient-to-r from-purple to-pink rounded-2xl p-4 sm:p-6 text-center text-white mb-4 sm:mb-6">
-              <p className="text-xs sm:text-sm mb-2">Time until reveal:</p>
-              <p className="text-xl sm:text-3xl font-bold">
-                {Math.floor(timeUntilReveal / (1000 * 60 * 60 * 24))}d{' '}
-                {Math.floor((timeUntilReveal % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))}h{' '}
-                {Math.floor((timeUntilReveal % (1000 * 60 * 60)) / (1000 * 60))}m
-              </p>
+          {!isRevealed && (
+            <div className="mb-8">
+              <Countdown 
+                revealTime={new Date(room!.revealTime)} 
+                onReveal={() => {
+                  setIsRevealed(true);
+                  setRoom((prev) => prev ? { ...prev, status: 'revealed' } : null);
+                }}
+              />
+            </div>
+          )}
+
+          {isHost && !isRevealed && (
+            <div className="mb-8 flex justify-center">
+              <Button
+                onClick={handleReveal}
+                disabled={isRevealing}
+                size="lg"
+                className="bg-gradient-to-r from-gold via-pink to-blue hover:from-gold hover:via-pink hover:to-blue"
+              >
+                {isRevealing ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Revealing...
+                  </span>
+                ) : '🎉 Reveal Now! 🎉'}
+              </Button>
             </div>
           )}
 
           {isRevealed && (
-            <div className="bg-gradient-to-r from-gold via-pink to-blue rounded-2xl p-6 sm:p-8 text-center text-white mb-4 sm:mb-6">
-              <p className="text-base sm:text-lg mb-4">🎉 Reveal! 🎉</p>
-              <p className="text-2xl sm:text-3xl font-bold mb-2">{room!.revealContent.value}</p>
-              {room!.revealContent.caption && (
-                <p className="text-base sm:text-lg">{room!.revealContent.caption}</p>
-              )}
+            <div className="mb-8">
+              <RevealDisplay 
+                revealType={room!.revealType as any}
+                revealContent={room!.revealContent as any}
+              />
             </div>
           )}
 

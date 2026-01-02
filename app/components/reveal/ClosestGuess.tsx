@@ -9,6 +9,7 @@ interface ClosestGuessProps {
   activityId: string;
   title: string;
   isHost?: boolean;
+  isRevealed?: boolean;
   onDelete?: () => void;
 }
 
@@ -24,7 +25,7 @@ interface ClosestGuessData {
   revealedValue?: number;
 }
 
-export default function ClosestGuessComponent({ activityId, title, isHost, onDelete }: ClosestGuessProps) {
+export default function ClosestGuessComponent({ activityId, title, isHost, isRevealed, onDelete }: ClosestGuessProps) {
   const [closestGuess, setClosestGuess] = useState<ClosestGuessData | null>(null);
   const [loading, setLoading] = useState(true);
   const [guessValue, setGuessValue] = useState('');
@@ -148,38 +149,40 @@ export default function ClosestGuessComponent({ activityId, title, isHost, onDel
         )}
       </div>
 
-      <div className="mb-6">
-        <Input
-          label="Your Guess"
-          type="number"
-          value={guessValue}
-          onChange={(e) => setGuessValue(e.target.value)}
-          placeholder="Enter your guess..."
-        />
-      </div>
+      {!isRevealed && (
+        <>
+          <div className="mb-6">
+            <Input
+              label="Your Guess"
+              type="number"
+              value={guessValue}
+              onChange={(e) => setGuessValue(e.target.value)}
+              placeholder="Enter your guess..."
+            />
+          </div>
 
-      {myGuess && (
-        <div className="bg-blue-10 rounded-lg p-3 mb-4">
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            Your current guess: <span className="font-semibold">{myGuess.value} {closestGuess?.unit}</span>
-          </p>
-        </div>
+          {myGuess && (
+            <div className="bg-blue-10 rounded-lg p-3 mb-4">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                Your current guess: <span className="font-semibold">{myGuess.value} {closestGuess?.unit}</span>
+              </p>
+            </div>
+          )}
+
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          {success && <p className="text-green-500 text-sm mb-4">Guess submitted!</p>}
+
+          <Button onClick={handleSubmitGuess} disabled={guessing} size="md" className="w-full">
+            {guessing ? 'Submitting...' : myGuess ? 'Update Guess' : 'Submit Guess'}
+          </Button>
+        </>
       )}
 
-      {closestGuess?.revealedValue !== undefined && (
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 mb-4 border-2 border-green-500">
-          <p className="text-lg font-bold text-green-700 dark:text-green-400">
-            Revealed: {closestGuess.revealedValue} {closestGuess.unit}
-          </p>
+      {isRevealed && (
+        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-center">
+          <p className="text-gray-600 dark:text-gray-400 font-medium">⏰ Guessing closed - Reveal complete!</p>
         </div>
       )}
-
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      {success && <p className="text-green-500 text-sm mb-4">Guess submitted!</p>}
-
-      <Button onClick={handleSubmitGuess} disabled={guessing} size="md" className="w-full">
-        {guessing ? 'Submitting...' : myGuess ? 'Update Guess' : 'Submit Guess'}
-      </Button>
 
       {closestGuess?.guesses && closestGuess.guesses.length > 0 && (
         <div className="mt-6">

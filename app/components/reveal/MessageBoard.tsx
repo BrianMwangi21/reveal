@@ -9,6 +9,7 @@ interface MessageBoardProps {
   activityId: string;
   title: string;
   isHost?: boolean;
+  isRevealed?: boolean;
   onDelete?: () => void;
 }
 
@@ -27,7 +28,7 @@ interface MessageBoardData {
 
 const EMOJIS = ['❤️', '😂', '🎉', '🥳', '👍', '🙌', '💯', '😍'];
 
-export default function MessageBoard({ activityId, title, isHost, onDelete }: MessageBoardProps) {
+export default function MessageBoard({ activityId, title, isHost, isRevealed, onDelete }: MessageBoardProps) {
   const [messageBoard, setMessageBoard] = useState<MessageBoardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [newMessage, setNewMessage] = useState('');
@@ -166,31 +167,39 @@ export default function MessageBoard({ activityId, title, isHost, onDelete }: Me
         )}
       </div>
 
-      <div className="mb-6">
-        <div className="flex gap-2">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Share a message..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handlePostMessage();
-              }
-            }}
-            className="flex-1"
-          />
-          <Button
-            onClick={handlePostMessage}
-            disabled={posting}
-            size="md"
-            variant="primary"
-          >
-            {posting ? '...' : 'Post'}
-          </Button>
+      {!isRevealed && (
+        <div className="mb-6">
+          <div className="flex gap-2">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Share a message..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handlePostMessage();
+                }
+              }}
+              className="flex-1"
+            />
+            <Button
+              onClick={handlePostMessage}
+              disabled={posting}
+              size="md"
+              variant="primary"
+            >
+              {posting ? '...' : 'Post'}
+            </Button>
+          </div>
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         </div>
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-      </div>
+      )}
+
+      {isRevealed && (
+        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-center mb-6">
+          <p className="text-gray-600 dark:text-gray-400 font-medium">⏰ Messages closed - Reveal complete!</p>
+        </div>
+      )}
 
       {sortedMessages.length === 0 ? (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">

@@ -8,6 +8,7 @@ interface BetProps {
   activityId: string;
   title: string;
   isHost?: boolean;
+  isRevealed?: boolean;
   onDelete?: () => void;
 }
 
@@ -22,7 +23,7 @@ interface BetData {
   }>;
 }
 
-export default function BetComponent({ activityId, title, isHost, onDelete }: BetProps) {
+export default function BetComponent({ activityId, title, isHost, isRevealed, onDelete }: BetProps) {
   const [bet, setBet] = useState<BetData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState('');
@@ -151,12 +152,13 @@ export default function BetComponent({ activityId, title, isHost, onDelete }: Be
           return (
             <button
               key={option}
-              onClick={() => setSelectedOption(option)}
+              onClick={() => !isRevealed && setSelectedOption(option)}
+              disabled={isRevealed}
               className={`w-full p-4 rounded-xl border-2 transition-all ${
                 isSelected
                   ? 'border-pink bg-pink/10'
                   : 'border-gray-200 dark:border-gray-700 hover:border-pink/50'
-              }`}
+              } ${isRevealed ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-gray-900 dark:text-white">{option}</span>
@@ -169,34 +171,44 @@ export default function BetComponent({ activityId, title, isHost, onDelete }: Be
         })}
       </div>
 
-      <div className="mb-6">
-        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-          Your Points (0-100)
-        </label>
-        <input
-          type="number"
-          min="0"
-          max="100"
-          value={points}
-          onChange={(e) => setPoints(parseInt(e.target.value) || 0)}
-          className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 focus:border-pink focus:ring-2 focus:ring-pink/20 outline-none transition-all bg-white dark:bg-gray-800 dark:text-white"
-        />
-      </div>
+      {!isRevealed && (
+        <>
+          <div className="mb-6">
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              Your Points (0-100)
+            </label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={points}
+              onChange={(e) => setPoints(parseInt(e.target.value) || 0)}
+              className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 focus:border-pink focus:ring-2 focus:ring-pink/20 outline-none transition-all bg-white dark:bg-gray-800 dark:text-white"
+            />
+          </div>
 
-      {myBet && (
-        <div className="bg-pink/10 rounded-lg p-3 mb-4">
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            Your current bet: <span className="font-semibold">{myBet.points} pts on {myBet.option}</span>
-          </p>
-        </div>
+          {myBet && (
+            <div className="bg-pink/10 rounded-lg p-3 mb-4">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                Your current bet: <span className="font-semibold">{myBet.points} pts on {myBet.option}</span>
+              </p>
+            </div>
+          )}
+
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          {success && <p className="text-green-500 text-sm mb-4">Bet placed!</p>}
+
+          <Button onClick={handlePlaceBet} disabled={betting} size="md" className="w-full">
+            {betting ? 'Placing bet...' : myBet ? 'Update Bet' : 'Place Bet'}
+          </Button>
+        </>
       )}
 
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      {success && <p className="text-green-500 text-sm mb-4">Bet placed!</p>}
-
-      <Button onClick={handlePlaceBet} disabled={betting} size="md" className="w-full">
-        {betting ? 'Placing bet...' : myBet ? 'Update Bet' : 'Place Bet'}
-      </Button>
+      {isRevealed && (
+        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-center">
+          <p className="text-gray-600 dark:text-gray-400 font-medium">⏰ Betting closed - Reveal complete!</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -10,6 +10,7 @@ type SSEEventType =
   | 'activity_created'
   | 'activity_deleted'
   | 'countdown_milestone'
+  | 'reveal_triggered'
   | 'keepalive';
 
 interface SSEEvent<T = any> {
@@ -31,6 +32,7 @@ interface UseSSEOptions {
   onActivityCreated?: (data: { activityId: string; roomCode: string; type: 'bet' | 'closestGuess' | 'message'; title: string }) => void;
   onActivityDeleted?: (data: { activityId: string; roomCode: string }) => void;
   onCountdownMilestone?: (data: { remainingSeconds: number; milestone: '1min' | '10sec' | '5sec' }) => void;
+  onRevealTriggered?: (data: { roomCode: string; revealType: string; revealContent: { type: 'text' | 'image' | 'video'; value: string; caption?: string } }) => void;
   onKeepalive?: () => void;
 }
 
@@ -98,6 +100,9 @@ export function useSSE(roomCode: string, guestId: string, nickname: string, opti
             break;
           case 'countdown_milestone':
             options.onCountdownMilestone?.(parsedEvent.data);
+            break;
+          case 'reveal_triggered':
+            options.onRevealTriggered?.(parsedEvent.data);
             break;
           case 'keepalive':
             options.onKeepalive?.();
