@@ -79,7 +79,7 @@ export default function CreateRoomPage() {
     setIsLoading(true);
 
     try {
-      const hostIdToUse = hostId || crypto.randomUUID();
+      const hostIdToUse = crypto.randomUUID();
       const nicknameToUse = formData.host.nickname;
 
       const payload = {
@@ -133,8 +133,8 @@ export default function CreateRoomPage() {
           caption: '',
         },
         host: {
-          id: payload.host.id,
-          nickname: payload.host.nickname,
+          id: hostIdToUse,
+          nickname: nicknameToUse,
         },
       });
     } catch (error) {
