@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IGuest extends Document {
+  guestId: string;
   roomCode: string;
   nickname: string;
   host: boolean;
@@ -10,6 +11,12 @@ export interface IGuest extends Document {
 
 const GuestSchema = new Schema<IGuest>(
   {
+    guestId: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
     roomCode: {
       type: String,
       required: true,
@@ -19,8 +26,7 @@ const GuestSchema = new Schema<IGuest>(
       type: String,
       required: [true, 'Nickname is required'],
       trim: true,
-      minlength: [1, 'Nickname must be at least 1 character'],
-      maxlength: [30, 'Nickname must be less than 30 characters'],
+      maxlength: [12, 'Nickname must be less than 12 characters'],
     },
     host: {
       type: Boolean,
@@ -42,5 +48,6 @@ const GuestSchema = new Schema<IGuest>(
 
 GuestSchema.index({ roomCode: 1, nickname: 1 }, { unique: true });
 GuestSchema.index({ roomCode: 1, host: 1 });
+GuestSchema.index({ createdAt: 1 }, { expireAfterSeconds: 172800 });
 
 export default mongoose.models.Guest || mongoose.model<IGuest>('Guest', GuestSchema);

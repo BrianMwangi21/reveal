@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Button from '@/app/components/ui/Button';
+import { getGuestSession } from '@/lib/utils/guestUtils';
+import GuestList from '@/app/components/reveal/GuestList';
 
 interface RoomData {
   id: string;
@@ -20,6 +22,7 @@ interface RoomData {
     nickname: string;
   };
   status: string;
+  isExpired: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -35,6 +38,13 @@ export default function RoomPage() {
   useEffect(() => {
     const fetchRoom = async () => {
       try {
+        const session = getGuestSession();
+
+        if (!session || session.roomCode !== code) {
+          router.push(`/rooms/${code}/join`);
+          return;
+        }
+
         const response = await fetch(`/api/rooms/${code}`);
         const result = await response.json();
 
@@ -51,7 +61,7 @@ export default function RoomPage() {
     };
 
     fetchRoom();
-  }, [code]);
+  }, [code, router]);
 
   if (isLoading) {
     return (
@@ -65,9 +75,11 @@ export default function RoomPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center p-4">
         <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
-          <div className="mb-6 text-6xl">🚫</div>
+          <div className="mb-6 text-6xl">
+            {error.includes('expired') ? '⏰' : '🚫'}
+          </div>
           <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-            Room Not Found
+            {error.includes('expired') ? 'Room Expired' : 'Room Not Found'}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             {error}
@@ -130,6 +142,10 @@ export default function RoomPage() {
                 {new Date(room!.revealTime).toLocaleString()}
               </p>
             </div>
+          </div>
+
+          <div className="mb-8">
+            <GuestList roomCode={code} />
           </div>
 
           {!isRevealed && timeUntilReveal > 0 && (

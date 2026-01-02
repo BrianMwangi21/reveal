@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Room from '@/lib/models/Room';
+import Guest from '@/lib/models/Guest';
+import { joinRoomSchema } from '@/lib/validations/guest';
 import { getRoomSchema } from '@/lib/validations/room';
 
-export async function GET(
+export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ code: string }> }
 ) {
@@ -11,6 +13,9 @@ export async function GET(
     const { code } = await params;
 
     getRoomSchema.parse({ code });
+
+    const body = await request.json();
+    const { nickname } = joinRoomSchema.parse(body);
 
     await connectDB();
 
@@ -28,22 +33,45 @@ export async function GET(
 
     const expirationTime = new Date(room.revealTime.getTime() + 2 * 60 * 60 * 1000);
     const now = new Date();
-    const isExpired = now > expirationTime;
+    if (now > expirationTime) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Room has expired',
+        },
+        { status: 410 }
+      );
+    }
+
+    const existingGuest = await Guest.findOne({ roomCode: code, nickname });
+
+    if (existingGuest) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Nickname already taken in this room',
+        },
+        { status: 409 }
+      );
+    }
+
+    const guestId = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+    const guest = await Guest.create({
+      guestId,
+      roomCode: code,
+      nickname,
+      host: false,
+    });
 
     return NextResponse.json({
       success: true,
       data: {
-        id: room._id,
-        code: room.code,
-        name: room.name,
-        revealTime: room.revealTime,
-        revealType: room.revealType,
-        revealContent: room.revealContent,
-        host: room.host,
-        status: room.status,
-        isExpired,
-        createdAt: room.createdAt,
-        updatedAt: room.updatedAt,
+        guestId: guest.guestId,
+        roomCode: guest.roomCode,
+        nickname: guest.nickname,
+        host: guest.host,
+        joinedAt: guest.joinedAt,
       },
     });
   } catch (error) {
@@ -58,11 +86,11 @@ export async function GET(
       );
     }
 
-    console.error('Error fetching room:', error);
+    console.error('Error joining room:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to fetch room',
+        error: 'Failed to join room',
       },
       { status: 500 }
     );
