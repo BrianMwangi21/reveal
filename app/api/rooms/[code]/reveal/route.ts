@@ -21,7 +21,7 @@ export async function POST(
 
     await connectDB();
 
-    const room = await Room.findOne({ code: code.toUpperCase() });
+    const room = await Room.findOne({ code });
 
     if (!room) {
       return NextResponse.json(
@@ -47,8 +47,8 @@ export async function POST(
     room.status = 'revealed';
     await room.save();
 
-    sseManager.broadcastToRoom(code.toUpperCase(), 'reveal_triggered', {
-      roomCode: code.toUpperCase(),
+    sseManager.broadcastToRoom(room.code, 'reveal_triggered', {
+      roomCode: room.code,
       revealType: room.revealType,
       revealContent: room.revealContent,
     });
@@ -56,7 +56,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       data: {
-        roomCode: code.toUpperCase(),
+        roomCode: room.code,
         status: room.status,
         revealType: room.revealType,
         revealContent: room.revealContent,
