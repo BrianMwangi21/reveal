@@ -13,13 +13,13 @@ type SSEEventType =
   | 'reveal_triggered'
   | 'keepalive';
 
-interface SSEEvent<T = any> {
+interface SSEEvent<T = unknown> {
   type: SSEEventType;
   data: T;
   timestamp: number;
 }
 
-type SSEEventHandler = (event: SSEEvent) => void;
+type SSEEventHandler = (event: SSEEvent<unknown>) => void;
 
 interface UseSSEOptions {
   onEvent?: SSEEventHandler;
@@ -71,38 +71,38 @@ export function useSSE(roomCode: string, guestId: string, nickname: string, opti
       }
 
       try {
-        const parsedEvent: SSEEvent = JSON.parse(event.data);
+        const parsedEvent = JSON.parse(event.data) as SSEEvent;
         
         switch (parsedEvent.type) {
           case 'guest_joined':
-            options.onGuestJoined?.(parsedEvent.data);
+            options.onGuestJoined?.(parsedEvent.data as any);
             break;
           case 'guest_left':
-            options.onGuestLeft?.(parsedEvent.data);
+            options.onGuestLeft?.(parsedEvent.data as any);
             break;
           case 'vote_cast':
-            options.onVoteCast?.(parsedEvent.data);
+            options.onVoteCast?.(parsedEvent.data as any);
             break;
           case 'guess_submitted':
-            options.onGuessSubmitted?.(parsedEvent.data);
+            options.onGuessSubmitted?.(parsedEvent.data as any);
             break;
           case 'message_posted':
-            options.onMessagePosted?.(parsedEvent.data);
+            options.onMessagePosted?.(parsedEvent.data as any);
             break;
           case 'message_reacted':
-            options.onMessageReacted?.(parsedEvent.data);
+            options.onMessageReacted?.(parsedEvent.data as any);
             break;
           case 'activity_created':
-            options.onActivityCreated?.(parsedEvent.data);
+            options.onActivityCreated?.(parsedEvent.data as any);
             break;
           case 'activity_deleted':
-            options.onActivityDeleted?.(parsedEvent.data);
+            options.onActivityDeleted?.(parsedEvent.data as any);
             break;
           case 'countdown_milestone':
-            options.onCountdownMilestone?.(parsedEvent.data);
+            options.onCountdownMilestone?.(parsedEvent.data as any);
             break;
           case 'reveal_triggered':
-            options.onRevealTriggered?.(parsedEvent.data);
+            options.onRevealTriggered?.(parsedEvent.data as any);
             break;
           case 'keepalive':
             options.onKeepalive?.();

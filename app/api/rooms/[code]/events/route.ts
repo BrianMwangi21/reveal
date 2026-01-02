@@ -22,8 +22,6 @@ export async function GET(
     return new Response('Room not found', { status: 404 });
   }
 
-  const encoder = new TextEncoder();
-
   const stream = new ReadableStream({
     start(controller) {
       const connection = new SSEConnection(

@@ -1,11 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface CountdownProps {
   revealTime: Date;
   onReveal?: () => void;
   className?: string;
+}
+
+interface TimeUnitProps {
+  value: number;
+  label: string;
+}
+
+function TimeUnit({ value, label }: TimeUnitProps) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg min-w-[70px] sm:min-w-[90px]">
+        <span className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-purple to-pink bg-clip-text text-transparent">
+          {value.toString().padStart(2, '0')}
+        </span>
+      </div>
+      <span className="mt-2 text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase">
+        {label}
+      </span>
+    </div>
+  );
 }
 
 export default function Countdown({ revealTime, onReveal, className = '' }: CountdownProps) {
@@ -16,11 +36,9 @@ export default function Countdown({ revealTime, onReveal, className = '' }: Coun
     seconds: 0,
   });
   const [isRevealed, setIsRevealed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    setMounted(true);
-
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
       const reveal = new Date(revealTime).getTime();
@@ -47,35 +65,21 @@ export default function Countdown({ revealTime, onReveal, className = '' }: Coun
       };
     };
 
+    if (!initialized.current) {
+      setTimeLeft(calculateTimeLeft());
+      initialized.current = true;
+    }
+
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
-    setTimeLeft(calculateTimeLeft());
-
     return () => clearInterval(timer);
   }, [revealTime, isRevealed, onReveal]);
-
-  if (!mounted) {
-    return null;
-  }
 
   if (isRevealed) {
     return null;
   }
-
-  const TimeUnit = ({ value, label }: { value: number; label: string }) => (
-    <div className="flex flex-col items-center">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg min-w-[70px] sm:min-w-[90px]">
-        <span className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-purple to-pink bg-clip-text text-transparent">
-          {value.toString().padStart(2, '0')}
-        </span>
-      </div>
-      <span className="mt-2 text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase">
-        {label}
-      </span>
-    </div>
-  );
 
   return (
     <div className={className}>

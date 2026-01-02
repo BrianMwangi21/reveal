@@ -12,6 +12,7 @@ import ClosestGuessComponent from '@/app/components/reveal/ClosestGuess';
 import MessageBoard from '@/app/components/reveal/MessageBoard';
 import Countdown from '@/app/components/reveal/Countdown';
 import RevealDisplay from '@/app/components/reveal/RevealDisplay';
+import type { RevealType } from '@/lib/models/Room';
 
 interface RoomData {
   id: string;
@@ -62,7 +63,7 @@ export default function RoomPage() {
     onActivityDeleted: (data) => {
       setActivities((prev) => prev.filter((a) => a.activityId !== data.activityId));
     },
-    onRevealTriggered: (data) => {
+    onRevealTriggered: () => {
       setRoom((prev) => prev ? { ...prev, status: 'revealed' } : null);
       setIsRevealed(true);
     },
@@ -164,8 +165,6 @@ export default function RoomPage() {
   if (!room) {
     return null;
   }
-
-  const timeUntilReveal = new Date(room!.revealTime).getTime() - new Date().getTime();
 
   const handleReveal = async () => {
     if (!session) return;
@@ -363,8 +362,8 @@ export default function RoomPage() {
           {isRevealed && (
             <div className="mb-8">
               <RevealDisplay 
-                revealType={room!.revealType as any}
-                revealContent={room!.revealContent as any}
+                revealType={room!.revealType as RevealType}
+                revealContent={room!.revealContent as { type: 'text' | 'image' | 'video'; value: string; caption?: string }}
               />
             </div>
           )}
