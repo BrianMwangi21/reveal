@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Activity from '@/lib/models/Activity';
+import { sseManager } from '@/lib/sse';
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,6 +45,17 @@ export async function POST(request: NextRequest) {
       type,
       title,
     });
+
+    sseManager.broadcastToRoom(
+      roomCode,
+      'activity_created',
+      {
+        activityId,
+        roomCode,
+        type: type as 'bet' | 'closestGuess' | 'message',
+        title,
+      }
+    );
 
     return NextResponse.json({ data: activity }, { status: 201 });
   } catch (error) {

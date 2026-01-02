@@ -147,7 +147,7 @@ Enable interactive activities for guests before the reveal happens.
 - [x] Current user is highlighted in UI
 - [x] Activities can be deleted by hosts
 - [x] Mobile-first responsive design implemented
-- [ ] Real-time updates (Phase 4)
+- [x] Real-time updates via Server-Sent Events
 
 **Status**: ✅ Completed - January 3, 2026
 
@@ -166,14 +166,14 @@ Enable real-time synchronization across all connected guests.
 - **Room Broadcasting**: Send updates to all guests in a specific room
 
 ### Tasks
-- [ ] Set up WebSocket server (consider `socket.io` or simple Server-Sent Events)
-- [ ] Design event schema for real-time updates
-- [ ] Implement room-based connection management
-- [ ] Add guest join/leave broadcasts
-- [ ] Add activity update broadcasts (votes, messages, predictions)
-- [ ] Implement countdown timer synchronization
-- [ ] Handle WebSocket reconnections
-- [ ] Add connection status indicator in UI
+- [x] Set up SSE server for real-time updates
+- [x] Design event schema for real-time updates
+- [x] Implement room-based connection management
+- [x] Add guest join/leave broadcasts
+- [x] Add activity update broadcasts (votes, messages, predictions)
+- [x] Handle SSE reconnections with exponential backoff
+- [x] Add connection status indicator in UI
+- [x] Implement keepalive mechanism to prevent Vercel timeout
 
 ### Event Types
 ```typescript
@@ -185,22 +185,25 @@ Enable real-time synchronization across all connected guests.
 ```
 
 ### Tech Notes
-- **Option A**: Socket.io (full-featured, built-in rooms, fallback to polling)
-- **Option B**: Native WebSocket (lightweight, more control)
-- **Option C**: Server-Sent Events (one-way, simpler)
-- **Consideration**: Vercel doesn't support persistent WebSocket connections natively - may need external service or Pusher
+- **Chosen Option**: Server-Sent Events (one-way, simpler)
+- **Consideration**: Vercel doesn't support persistent WebSocket connections natively - SSE is the best option for Vercel
+- **Keepalive**: 30s interval to prevent Vercel timeout
+- **Staggered connections**: Random delays prevent thundering herd problem
 
 ### Deliverables
-- WebSocket server in `lib/websocket.ts`
-- WebSocket API routes
-- Real-time hooks/components
-- Connection status UI component
+- SSE connection manager in `lib/sse.ts`
+- SSE endpoint at `app/api/rooms/[code]/events/route.ts`
+- useSSE hook at `app/hooks/useSSE.ts`
+- Connection status UI component in room header
 
 ### Definition of Done
-- Guests see real-time updates when others join/leave
-- Votes and messages appear instantly
-- Countdown timer stays synchronized
-- Connection status visible to users
+- [x] Guests see real-time updates when others join/leave
+- [x] Votes and messages appear instantly (via polling + SSE for events)
+- [x] Countdown timer stays synchronized (client-side calculation)
+- [x] Connection status visible to users
+- [x] Auto-reconnect with exponential backoff (3 retries)
+
+**Status**: ✅ Completed - January 3, 2026
 
 ---
 

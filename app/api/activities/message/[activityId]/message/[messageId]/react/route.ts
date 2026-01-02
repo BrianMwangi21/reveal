@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Message from '@/lib/models/Message';
 import { ReactionEmoji } from '@/lib/models/Message';
+import { sseManager } from '@/lib/sse';
 
 type MessageEntry = {
   id: string;
@@ -69,6 +70,19 @@ export async function POST(
     message.reactions = reactions;
     messageBoard.messages = messages;
     await messageBoard.save();
+
+    sseManager.broadcastToRoom(
+      messageBoard.roomCode,
+      'message_reacted',
+      {
+        activityId,
+        messageId,
+        guestId,
+        nickname: message.nickname,
+        emoji,
+        reactions,
+      }
+    );
 
     return NextResponse.json({ data: messageBoard });
   } catch (error) {

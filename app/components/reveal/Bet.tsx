@@ -57,6 +57,8 @@ export default function BetComponent({ activityId, title, isHost, onDelete }: Be
 
   useEffect(() => {
     fetchBet();
+    const interval = setInterval(fetchBet, 5000);
+    return () => clearInterval(interval);
   }, [fetchBet]);
 
   const handlePlaceBet = async () => {

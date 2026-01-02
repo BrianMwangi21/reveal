@@ -4,6 +4,7 @@ import Activity from '@/lib/models/Activity';
 import Bet from '@/lib/models/Bet';
 import ClosestGuess from '@/lib/models/ClosestGuess';
 import Message from '@/lib/models/Message';
+import { sseManager } from '@/lib/sse';
 
 export async function DELETE(
   request: NextRequest,
@@ -18,6 +19,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Activity not found' }, { status: 404 });
     }
 
+    const roomCode = activity.roomCode;
     await Activity.deleteOne({ activityId });
 
     if (activity.type === 'bet') {
@@ -27,6 +29,15 @@ export async function DELETE(
     } else if (activity.type === 'message') {
       await Message.deleteOne({ activityId });
     }
+
+    sseManager.broadcastToRoom(
+      roomCode,
+      'activity_deleted',
+      {
+        activityId,
+        roomCode,
+      }
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

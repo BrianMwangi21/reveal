@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Message from '@/lib/models/Message';
+import { sseManager } from '@/lib/sse';
 
 export async function POST(
   request: NextRequest,
@@ -27,16 +28,30 @@ export async function POST(
 
     const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    messageBoard.messages.push({
+    const newMessage = {
       id: messageId,
       guestId,
       nickname,
       content,
-      reactions: new Map(),
+      reactions: {},
       timestamp: new Date(),
-    });
+    };
 
+    messageBoard.messages.push(newMessage);
     await messageBoard.save();
+
+    sseManager.broadcastToRoom(
+      messageBoard.roomCode,
+      'message_posted',
+      {
+        activityId,
+        messageId,
+        guestId,
+        nickname,
+        message: content,
+        reactions: newMessage.reactions,
+      }
+    );
 
     return NextResponse.json({ data: messageBoard });
   } catch (error) {

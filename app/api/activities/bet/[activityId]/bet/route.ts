@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Bet from '@/lib/models/Bet';
+import { sseManager } from '@/lib/sse';
 
 type BetEntry = {
   guestId: string;
@@ -66,6 +67,23 @@ export async function POST(
 
     bet.bets = bets;
     await bet.save();
+
+    const voteCounts: Record<string, number> = {};
+    bets.forEach((b) => {
+      voteCounts[b.option] = (voteCounts[b.option] || 0) + b.points;
+    });
+
+    sseManager.broadcastToRoom(
+      bet.roomCode,
+      'vote_cast',
+      {
+        activityId,
+        guestId,
+        nickname,
+        vote: option,
+        voteCounts,
+      }
+    );
 
     return NextResponse.json({ data: bet });
   } catch (error) {

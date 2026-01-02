@@ -53,6 +53,8 @@ export default function MessageBoard({ activityId, title, isHost, onDelete }: Me
 
   useEffect(() => {
     fetchMessages();
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
   }, [fetchMessages]);
 
   const handlePostMessage = async () => {

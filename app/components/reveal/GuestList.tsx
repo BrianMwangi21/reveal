@@ -50,7 +50,7 @@ export default function GuestList({ roomCode }: GuestListProps) {
 
   useEffect(() => {
     fetchGuests();
-    const guestsInterval = setInterval(fetchGuests, 5000);
+    const guestsInterval = setInterval(fetchGuests, 10000);
     const pingInterval = setInterval(pingCurrentGuest, 30000);
     return () => {
       clearInterval(guestsInterval);

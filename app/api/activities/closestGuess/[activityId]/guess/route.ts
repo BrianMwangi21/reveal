@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import ClosestGuess from '@/lib/models/ClosestGuess';
+import { sseManager } from '@/lib/sse';
 
 type GuessEntry = {
   guestId: string;
@@ -56,6 +57,17 @@ export async function POST(
 
     closestGuess.guesses = guesses;
     await closestGuess.save();
+
+    sseManager.broadcastToRoom(
+      closestGuess.roomCode,
+      'guess_submitted',
+      {
+        activityId,
+        guestId,
+        nickname,
+        guess: value,
+      }
+    );
 
     return NextResponse.json({ data: closestGuess });
   } catch (error) {

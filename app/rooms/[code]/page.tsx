@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Button from '@/app/components/ui/Button';
 import { getGuestSession } from '@/lib/utils/guestUtils';
+import { useSSE } from '@/app/hooks/useSSE';
 import GuestList from '@/app/components/reveal/GuestList';
 import ActivityCreator from '@/app/components/reveal/ActivityCreator';
 import BetComponent from '@/app/components/reveal/Bet';
@@ -49,6 +50,15 @@ export default function RoomPage() {
 
   const session = getGuestSession();
   const isHost = room?.host.id === session?.guestId;
+
+  const { connectionStatus, reconnect } = useSSE(code.toUpperCase(), session?.guestId || '', session?.nickname || '', {
+    onActivityCreated: (data) => {
+      setActivities((prev) => [...prev, { activityId: data.activityId, roomCode: data.roomCode, type: data.type, title: data.title }]);
+    },
+    onActivityDeleted: (data) => {
+      setActivities((prev) => prev.filter((a) => a.activityId !== data.activityId));
+    },
+  });
 
   useEffect(() => {
     const fetchRoom = async () => {
@@ -104,10 +114,8 @@ export default function RoomPage() {
     fetchRoom();
     fetchActivities();
     const pingInterval = setInterval(pingCurrentGuest, 30000);
-    const activityInterval = setInterval(fetchActivities, 5000);
     return () => {
       clearInterval(pingInterval);
-      clearInterval(activityInterval);
     };
   }, [code, router]);
 
@@ -169,6 +177,18 @@ export default function RoomPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </button>
+              <div className={`w-3 h-3 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : connectionStatus === 'connecting' ? 'bg-yellow-500' : connectionStatus === 'error' ? 'bg-red-500' : 'bg-gray-500'}`} title={connectionStatus} />
+              {connectionStatus === 'error' && (
+                <button
+                  onClick={reconnect}
+                  className="bg-white dark:bg-gray-700 text-gray-700 dark:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                  title="Reconnect"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              )}
             </div>
             <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
               {room!.name}

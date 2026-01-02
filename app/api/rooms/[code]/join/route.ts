@@ -4,6 +4,7 @@ import Room from '@/lib/models/Room';
 import Guest from '@/lib/models/Guest';
 import { joinRoomSchema } from '@/lib/validations/guest';
 import { getRoomSchema } from '@/lib/validations/room';
+import { sseManager } from '@/lib/sse';
 
 export async function POST(
   request: NextRequest,
@@ -63,6 +64,16 @@ export async function POST(
       nickname,
       host: false,
     });
+
+    sseManager.broadcastToRoom(
+      code,
+      'guest_joined',
+      {
+        guestId: guest.guestId,
+        nickname: guest.nickname,
+        roomCode: guest.roomCode,
+      }
+    );
 
     return NextResponse.json({
       success: true,

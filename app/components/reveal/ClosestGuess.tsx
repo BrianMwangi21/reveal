@@ -55,6 +55,8 @@ export default function ClosestGuessComponent({ activityId, title, isHost, onDel
 
   useEffect(() => {
     fetchClosestGuess();
+    const interval = setInterval(fetchClosestGuess, 5000);
+    return () => clearInterval(interval);
   }, [fetchClosestGuess]);
 
   const myGuess = closestGuess?.guesses.find((g) => g.guestId === session?.guestId);
