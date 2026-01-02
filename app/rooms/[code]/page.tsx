@@ -40,11 +40,6 @@ export default function RoomPage() {
       try {
         const session = getGuestSession();
 
-        if (!session || session.roomCode !== code) {
-          router.push(`/rooms/${code}/join`);
-          return;
-        }
-
         const response = await fetch(`/api/rooms/${code}`);
         const result = await response.json();
 
@@ -53,6 +48,10 @@ export default function RoomPage() {
         }
 
         setRoom(result.data);
+
+        if (!session || session.roomCode !== code) {
+          router.push(`/rooms/${code}/join`);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load room');
       } finally {
@@ -60,7 +59,24 @@ export default function RoomPage() {
       }
     };
 
+    const pingCurrentGuest = async () => {
+      const session = getGuestSession();
+      if (!session) return;
+
+      try {
+        await fetch('/api/guests/ping', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guestId: session.guestId }),
+        });
+      } catch (err) {
+        console.error('Error pinging guest:', err);
+      }
+    };
+
     fetchRoom();
+    const pingInterval = setInterval(pingCurrentGuest, 30000);
+    return () => clearInterval(pingInterval);
   }, [code, router]);
 
   if (isLoading) {
@@ -108,8 +124,19 @@ export default function RoomPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-6 py-2 rounded-full text-lg font-semibold mb-4">
-              {room!.code.toUpperCase()}
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-6 py-2 rounded-full text-lg font-semibold">
+                {room!.code.toUpperCase()}
+              </div>
+              <button
+                onClick={() => navigator.clipboard.writeText(`${window.location.origin}/rooms/${room!.code}`)}
+                className="bg-white dark:bg-gray-700 text-gray-700 dark:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                title="Copy room link"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
             </div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
               {room!.name}
@@ -175,9 +202,7 @@ export default function RoomPage() {
 
           <div className="flex justify-center gap-4">
             <Button
-              onClick={() => navigator.clipboard.writeText(
-                `${window.location.origin}?code=${room!.code}`
-              )}
+              onClick={() => navigator.clipboard.writeText(`${window.location.origin}/rooms/${room!.code}`)}
               variant="outline"
               size="md"
             >

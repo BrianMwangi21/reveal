@@ -158,12 +158,12 @@ export default function CreateRoomPage() {
             <p className="text-5xl font-bold tracking-wider">{createdRoom.code}</p>
           </div>
           <Button
-            onClick={() => navigator.clipboard.writeText(createdRoom.code)}
+            onClick={() => navigator.clipboard.writeText(`${window.location.origin}/rooms/${createdRoom.code}`)}
             variant="outline"
             size="md"
             className="w-full mb-3"
           >
-            Copy Code
+            Copy Link
           </Button>
           <div className="flex flex-col gap-3">
             <Button

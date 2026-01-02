@@ -1,11 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { getGuestSession } from '@/lib/utils/guestUtils';
 
 interface Guest {
   guestId: string;
   nickname: string;
   joinedAt: string;
+  lastActive: string;
 }
 
 interface GuestListProps {
@@ -31,11 +33,36 @@ export default function GuestList({ roomCode }: GuestListProps) {
     }
   }, [roomCode]);
 
+  const pingCurrentGuest = useCallback(async () => {
+    const session = getGuestSession();
+    if (!session) return;
+
+    try {
+      await fetch('/api/guests/ping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guestId: session.guestId }),
+      });
+    } catch (err) {
+      console.error('Error pinging guest:', err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchGuests();
-    const interval = setInterval(fetchGuests, 5000);
-    return () => clearInterval(interval);
-  }, [fetchGuests]);
+    const guestsInterval = setInterval(fetchGuests, 5000);
+    const pingInterval = setInterval(pingCurrentGuest, 30000);
+    return () => {
+      clearInterval(guestsInterval);
+      clearInterval(pingInterval);
+    };
+  }, [fetchGuests, pingCurrentGuest]);
+
+  const isOnline = (lastActive: string) => {
+    const lastActiveTime = new Date(lastActive).getTime();
+    const now = new Date().getTime();
+    return now - lastActiveTime < 60000;
+  };
 
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
@@ -53,9 +80,14 @@ export default function GuestList({ roomCode }: GuestListProps) {
               key={guest.guestId}
               className="flex items-center justify-between bg-white dark:bg-gray-700 rounded-lg p-3"
             >
-              <span className="text-gray-900 dark:text-white font-medium">
-                {guest.nickname}
-              </span>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${
+                  isOnline(guest.lastActive) ? 'bg-green-500' : 'bg-gray-400'
+                }`} />
+                <span className="text-gray-900 dark:text-white font-medium">
+                  {guest.nickname}
+                </span>
+              </div>
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 {new Date(guest.joinedAt).toLocaleTimeString([], {
                   hour: '2-digit',
