@@ -135,7 +135,7 @@ export default function RoomPage() {
     return () => {
       clearInterval(pingInterval);
     };
-  }, [code, router]);
+  }, [code, router, setThemeFromRevealType]);
 
   if (isLoading) {
     return (

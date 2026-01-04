@@ -144,13 +144,13 @@ export default function CreateRoomPage() {
 
   if (createdRoom) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
+      <div className="min-h-screen gradient-bg flex items-center justify-center p-4">
+        <div className="card p-8 max-w-md w-full text-center animate-bounce-in">
           <div className="mb-6 text-6xl">🎉</div>
-          <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold mb-4">
             Room Created!
           </h1>
-          <p className="text-lg mb-6 text-gray-600 dark:text-gray-400">
+          <p className="text-lg mb-6">
             {createdRoom.name}
           </p>
           <div className="bg-gradient-to-r from-purple to-pink text-white rounded-2xl p-6 mb-6">
@@ -188,12 +188,12 @@ export default function CreateRoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-2xl w-full">
-        <h1 className="text-4xl font-bold mb-2 text-center text-gray-900 dark:text-white">
+    <div className="min-h-screen gradient-bg flex items-center justify-center p-4">
+      <div className="card p-8 max-w-2xl w-full animate-scale">
+        <h1 className="text-4xl font-bold mb-2 text-center">
           Create Your Reveal
         </h1>
-        <p className="text-center mb-8 text-gray-600 dark:text-gray-400">
+        <p className="text-center mb-8">
           Set up your celebration moment
         </p>
 
@@ -235,7 +235,7 @@ export default function CreateRoomPage() {
 
           <Input
             label="Reveal Content"
-            placeholder="e.g., It's a Boy! or the reveal message"
+            placeholder="e.g., It's a Boy! or reveal message"
             value={formData.revealContent.value}
             onChange={(e) => handleChange('revealContent.value', e.target.value)}
             error={errors['revealContent.value']}

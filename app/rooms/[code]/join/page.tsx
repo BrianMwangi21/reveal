@@ -83,23 +83,23 @@ export default function JoinRoomPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center">
-        <div className="text-white text-2xl font-semibold">Loading...</div>
+      <div className="min-h-screen gradient-bg flex items-center justify-center animate-fade-in">
+        <div className="text-white text-2xl font-semibold animate-bounce">Loading...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
+      <div className="min-h-screen gradient-bg flex items-center justify-center p-4 animate-fade-in">
+        <div className="card p-8 max-w-md w-full text-center animate-scale">
           <div className="mb-6 text-6xl">
             {error.includes('expired') ? '⏰' : '🚫'}
           </div>
-          <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold mb-4">
             {error.includes('expired') ? 'Room Expired' : 'Room Not Found'}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="mb-6">
             {error}
           </p>
           <Button
@@ -119,11 +119,11 @@ export default function JoinRoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-md w-full">
+    <div className="min-h-screen gradient-bg flex items-center justify-center p-4">
+      <div className="card p-8 max-w-md w-full animate-scale">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-6 py-2 rounded-full text-lg font-semibold">
+            <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-6 py-2 rounded-full text-lg font-semibold animate-scale">
               {room!.code.toUpperCase()}
             </div>
             <button
@@ -136,10 +136,10 @@ export default function JoinRoomPage() {
               </svg>
             </button>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold mb-2 animate-slide-up">
             {room!.name}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
             Enter your nickname to join
           </p>
         </div>
@@ -154,7 +154,7 @@ export default function JoinRoomPage() {
               className="text-center text-lg"
               maxLength={12}
             />
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
+            <p className="text-sm mt-2 text-center">
               Max 12 characters, letters only
             </p>
           </div>
@@ -177,7 +177,7 @@ export default function JoinRoomPage() {
           <button
             type="button"
             onClick={() => router.push('/')}
-            className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+            className="text-sm hover:underline"
           >
             ← Back to Home
           </button>

@@ -27,41 +27,42 @@ const themeMapping: Record<RevealType, ThemeType> = {
   custom: 'default',
 };
 
+function getInitialTheme(revealType?: RevealType): ThemeType {
+  if (typeof window === 'undefined') return 'default';
+  
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeType | null;
+  
+  if (savedTheme) {
+    return savedTheme;
+  }
+  
+  if (revealType && themeMapping[revealType]) {
+    return themeMapping[revealType];
+  }
+  
+  return 'default';
+}
+
+function getInitialDarkMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  const savedDarkMode = localStorage.getItem(DARK_MODE_STORAGE_KEY);
+  return savedDarkMode === 'true';
+}
+
 export function ThemeProvider({ children, revealType }: { children: ReactNode; revealType?: RevealType }) {
-  const [theme, setThemeState] = useState<ThemeType>('default');
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [theme, setThemeState] = useState<ThemeType>(() => getInitialTheme(revealType));
+  const [isDarkMode, setIsDarkMode] = useState(() => getInitialDarkMode());
 
   useEffect(() => {
-    setMounted(true);
-    
-    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeType | null;
-    const savedDarkMode = localStorage.getItem(DARK_MODE_STORAGE_KEY);
-
-    if (savedTheme) {
-      setThemeState(savedTheme);
-    } else if (revealType && themeMapping[revealType]) {
-      setThemeState(themeMapping[revealType]);
-    }
-
-    if (savedDarkMode) {
-      setIsDarkMode(savedDarkMode === 'true');
-    }
-  }, [revealType]);
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   useEffect(() => {
-    if (mounted) {
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-    }
-  }, [theme, mounted]);
-
-  useEffect(() => {
-    if (mounted) {
-      document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : theme);
-      localStorage.setItem(DARK_MODE_STORAGE_KEY, isDarkMode.toString());
-    }
-  }, [isDarkMode, theme, mounted]);
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : theme);
+    localStorage.setItem(DARK_MODE_STORAGE_KEY, isDarkMode.toString());
+  }, [isDarkMode, theme]);
 
   const setTheme = (newTheme: ThemeType) => {
     setThemeState(newTheme);
@@ -75,10 +76,6 @@ export function ThemeProvider({ children, revealType }: { children: ReactNode; r
     const mappedTheme = themeMapping[revealType] || 'default';
     setThemeState(mappedTheme);
   };
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, isDarkMode, setTheme, toggleDarkMode, setThemeFromRevealType }}>

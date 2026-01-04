@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
+import ThemeSwitcher from '@/app/components/ui/ThemeSwitcher';
+import DarkModeToggle from '@/app/components/ui/DarkModeToggle';
 
 export default function Home() {
   const [roomCode, setRoomCode] = useState('');
@@ -44,28 +46,32 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center">
+    <div className="min-h-screen gradient-bg flex items-center justify-center p-4">
+      <div className="card p-12 max-w-2xl w-full text-center animate-scale">
         <div className="mb-8">
-          <h1 className="text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+          <div className="flex justify-end gap-2 mb-4">
+            <ThemeSwitcher />
+            <DarkModeToggle />
+          </div>
+          <h1 className="text-5xl font-bold mb-4 animate-bounce-in">
             🎉 Reveal
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400">
+          <p className="text-xl animate-slide-up" style={{ animationDelay: '0.1s' }}>
             Create memorable reveal moments
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+          <p className="text-sm mt-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
             Gender reveals, birthdays, anniversaries, and more
           </p>
         </div>
 
         <div className="space-y-4">
           <Link href="/create">
-            <Button size="lg" className="w-full">
+            <Button size="lg" className="w-full animate-fade-in">
               Create a Room
             </Button>
           </Link>
 
-          <div className="text-center text-gray-400 dark:text-gray-500">or</div>
+          <div className="text-center">or</div>
 
           <form onSubmit={handleJoinRoom}>
             <div className="mb-4">
@@ -92,12 +98,12 @@ export default function Home() {
           </form>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Host: manage your reveal, share the code, celebrate together
+        <div className="mt-8 pt-8 border-t border-[var(--border)]">
+          <p className="text-sm animate-fade-in">
+            Host: manage your reveal, share code, celebrate together
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Guest: join the fun, vote, guess, and watch the reveal together
+          <p className="text-sm mt-2 animate-fade-in">
+            Guest: join fun, vote, guess, and watch reveal together
           </p>
         </div>
       </div>
