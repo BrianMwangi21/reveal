@@ -13,6 +13,7 @@ import MessageBoard from '@/app/components/reveal/MessageBoard';
 import Countdown from '@/app/components/reveal/Countdown';
 import RevealDisplay from '@/app/components/reveal/RevealDisplay';
 import ResultsSummary from '@/app/components/reveal/ResultsSummary';
+import ShareButtons from '@/app/components/ui/ShareButtons';
 import ThemeSwitcher from '@/app/components/ui/ThemeSwitcher';
 import DarkModeToggle from '@/app/components/ui/DarkModeToggle';
 import type { RevealType } from '@/lib/models/Room';
@@ -411,14 +412,13 @@ export default function RoomPage() {
           ))}
           </div>
 
-          <div className="flex justify-center gap-4">
-            <Button
-              onClick={() => navigator.clipboard.writeText(`${window.location.origin}/rooms/${room!.code.toUpperCase()}`)}
-              variant="outline"
-              size="md"
-            >
-              Share Room
-            </Button>
+          <div className="flex justify-center">
+            <ShareButtons
+              roomName={room!.name}
+              roomCode={room!.code}
+              revealContent={room!.revealContent as { type: 'text' | 'image' | 'video'; value: string }}
+              isRevealed={isRevealed}
+            />
           </div>
         </div>
       </div>
