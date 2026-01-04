@@ -87,7 +87,6 @@ const RoomSchema = new Schema<IRoom>(
     },
     expiresAt: {
       type: Date,
-      index: true,
     },
   },
   {
