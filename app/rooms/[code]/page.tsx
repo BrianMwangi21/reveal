@@ -222,7 +222,7 @@ export default function RoomPage() {
         <div className="card p-6 sm:p-8 max-w-4xl mx-auto animate-fade-in">
           <div className="text-center mb-6 sm:mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-4 sm:px-6 py-2 rounded-full text-base sm:text-lg font-semibold animate-scale">
+              <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-4 sm:px-6 py-2 rounded-full text-base sm:text-lg font-semibold animate-scale shadow-lg">
                 {room!.code.toUpperCase()}
               </div>
               <ThemeSwitcher />

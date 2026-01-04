@@ -123,7 +123,7 @@ export default function JoinRoomPage() {
       <div className="card p-8 max-w-md w-full animate-scale">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-6 py-2 rounded-full text-lg font-semibold animate-scale">
+            <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-6 py-2 rounded-full text-lg font-semibold animate-scale shadow-lg">
               {room!.code.toUpperCase()}
             </div>
             <button

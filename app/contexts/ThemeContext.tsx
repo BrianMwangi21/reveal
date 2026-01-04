@@ -60,9 +60,9 @@ export function ThemeProvider({ children, revealType }: { children: ReactNode; r
   }, [theme]);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : theme);
+    document.documentElement.setAttribute('data-mode', isDarkMode ? 'dark' : 'light');
     localStorage.setItem(DARK_MODE_STORAGE_KEY, isDarkMode.toString());
-  }, [isDarkMode, theme]);
+  }, [isDarkMode]);
 
   const setTheme = (newTheme: ThemeType) => {
     setThemeState(newTheme);

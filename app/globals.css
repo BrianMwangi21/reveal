@@ -55,7 +55,7 @@
   --accent-foreground: #ffffff;
 }
 
-[data-theme="dark"] {
+[data-mode="dark"] {
   --background: #0a0a0a;
   --foreground: #ededed;
   --muted: #1f2937;
