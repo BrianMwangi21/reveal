@@ -12,7 +12,10 @@ import ClosestGuessComponent from '@/app/components/reveal/ClosestGuess';
 import MessageBoard from '@/app/components/reveal/MessageBoard';
 import Countdown from '@/app/components/reveal/Countdown';
 import RevealDisplay from '@/app/components/reveal/RevealDisplay';
+import ThemeSwitcher from '@/app/components/ui/ThemeSwitcher';
+import DarkModeToggle from '@/app/components/ui/DarkModeToggle';
 import type { RevealType } from '@/lib/models/Room';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 interface RoomData {
   id: string;
@@ -70,6 +73,8 @@ export default function RoomPage() {
     },
   });
 
+  const { setThemeFromRevealType } = useTheme();
+
   useEffect(() => {
     const fetchRoom = async () => {
       try {
@@ -84,6 +89,8 @@ export default function RoomPage() {
 
         setRoom(result.data);
         setIsRevealed(result.data.status === 'revealed');
+
+        setThemeFromRevealType(result.data.revealType);
 
         if (!session || session.roomCode !== code) {
           router.push(`/rooms/${code}/join`);
@@ -132,20 +139,20 @@ export default function RoomPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center">
-        <div className="text-white text-2xl font-semibold">Loading...</div>
+      <div className="min-h-screen gradient-bg flex items-center justify-center animate-fade-in">
+        <div className="text-white text-2xl font-semibold animate-bounce-in">Loading...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
+      <div className="min-h-screen gradient-bg flex items-center justify-center p-4 animate-fade-in">
+        <div className="card p-8 max-w-md w-full text-center animate-scale">
           <div className="mb-6 text-6xl">
             {error.includes('expired') ? '⏰' : '🚫'}
           </div>
-          <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold mb-4">
             {error.includes('expired') ? 'Room Expired' : 'Room Not Found'}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -210,14 +217,16 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gold via-pink to-blue">
+    <div className="min-h-screen gradient-bg">
       <div className="container mx-auto px-4 py-6 sm:py-8">
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 sm:p-8 max-w-4xl mx-auto">
+        <div className="card p-6 sm:p-8 max-w-4xl mx-auto animate-fade-in">
           <div className="text-center mb-6 sm:mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-4 sm:px-6 py-2 rounded-full text-base sm:text-lg font-semibold">
+              <div className="inline-block bg-gradient-to-r from-purple to-pink text-white px-4 sm:px-6 py-2 rounded-full text-base sm:text-lg font-semibold animate-scale">
                 {room!.code.toUpperCase()}
               </div>
+              <ThemeSwitcher />
+              <DarkModeToggle />
               <button
                 onClick={() => navigator.clipboard.writeText(`${window.location.origin}/rooms/${room!.code.toUpperCase()}`)}
                 className="bg-white dark:bg-gray-700 text-gray-700 dark:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
@@ -240,43 +249,43 @@ export default function RoomPage() {
                 </button>
               )}
             </div>
-            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl sm:text-4xl font-bold mb-2 animate-slide-up">
               {room!.name}
             </h1>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Hosted by {room!.host.nickname}
             </p>
             {session && (
-              <p className="mt-2 text-pink font-semibold">
+              <p className="mt-2 text-[var(--secondary)] font-semibold">
                 You: {session.nickname}
               </p>
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+            <div className="bg-[var(--muted)] rounded-2xl p-4 sm:p-6 animate-slide-up">
+              <h3 className="text-base sm:text-lg font-semibold mb-2">
                 Reveal Type
               </h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 capitalize">
+              <p className="text-sm sm:text-base text-[var(--muted-foreground)] capitalize">
                 {room!.revealType}
               </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+            <div className="bg-[var(--muted)] rounded-2xl p-4 sm:p-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              <h3 className="text-base sm:text-lg font-semibold mb-2">
                 Status
               </h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 capitalize">
+              <p className="text-sm sm:text-base text-[var(--muted-foreground)] capitalize">
                 {room!.status}
               </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6 md:col-span-2">
-              <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+            <div className="bg-[var(--muted)] rounded-2xl p-4 sm:p-6 md:col-span-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              <h3 className="text-base sm:text-lg font-semibold mb-2">
                 Scheduled Reveal
               </h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+              <p className="text-sm sm:text-base text-[var(--muted-foreground)]">
                 {new Date(room!.revealTime).toLocaleString()}
               </p>
             </div>
@@ -295,8 +304,8 @@ export default function RoomPage() {
           )}
 
           {countdown !== null && (
-            <div className="mb-8 flex flex-col items-center justify-center">
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 animate-pulse">
+            <div className="mb-8 flex flex-col items-center justify-center animate-bounce-in">
+              <p className="text-xl sm:text-2xl font-bold mb-4 animate-pulse">
                 Get Ready!
               </p>
               <div className="text-9xl sm:text-[12rem] font-extrabold bg-gradient-to-r from-purple via-pink to-blue bg-clip-text text-transparent animate-bounce">
@@ -315,12 +324,11 @@ export default function RoomPage() {
           )}
 
           {isHost && !isRevealed && !countdown && (
-            <div className="mb-8 flex justify-center">
+            <div className="mb-8 flex justify-center animate-slide-up">
               <Button
                 onClick={handleReveal}
                 disabled={isRevealing}
                 size="lg"
-                className="bg-gradient-to-r from-gold via-pink to-blue hover:from-gold hover:via-pink hover:to-blue"
               >
                 {isRevealing ? (
                   <span className="flex items-center gap-2">
