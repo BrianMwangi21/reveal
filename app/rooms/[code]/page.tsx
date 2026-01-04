@@ -321,7 +321,7 @@ export default function RoomPage() {
 
           {countdown !== null && (
             <div className="mb-8 flex flex-col items-center justify-center animate-bounce-in">
-              <p className="text-xl sm:text-2xl font-bold mb-4 animate-pulse">
+              <p className="text-xl sm:text-2xl font-bold mb-4 animate-pulse text-gray-900 dark:text-white">
                 Get Ready!
               </p>
               <div className="text-9xl sm:text-[12rem] font-extrabold bg-gradient-to-r from-purple via-pink to-blue bg-clip-text text-transparent animate-bounce">

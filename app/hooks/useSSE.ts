@@ -27,7 +27,7 @@ interface UseSSEOptions {
   onGuestJoined?: (data: { guestId: string; nickname: string; roomCode: string }) => void;
   onGuestLeft?: (data: { guestId: string; nickname: string; roomCode: string }) => void;
   onVoteCast?: (data: { activityId: string; guestId: string; nickname: string; vote: string; voteCounts: Record<string, number> }) => void;
-  onGuessSubmitted?: (data: { activityId: string; guestId: string; nickname: string; guess: number }) => void;
+  onGuessSubmitted?: (data: { activityId: string; guestId: string; nickname: string; guess: string }) => void;
   onMessagePosted?: (data: { activityId: string; messageId: string; guestId: string; nickname: string; message: string; reactions: Record<string, string[]> }) => void;
   onMessageReacted?: (data: { activityId: string; messageId: string; guestId: string; nickname: string; emoji: string; reactions: Record<string, string[]> }) => void;
   onActivityCreated?: (data: { activityId: string; roomCode: string; type: 'bet' | 'closestGuess' | 'message'; title: string }) => void;

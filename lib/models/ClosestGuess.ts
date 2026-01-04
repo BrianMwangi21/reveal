@@ -8,10 +8,10 @@ export interface IClosestGuess extends Document {
   guesses: Array<{
     guestId: string;
     nickname: string;
-    value: number;
+    value: string;
     timestamp: Date;
   }>;
-  revealedValue?: number;
+  revealedValue?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,7 +51,7 @@ const ClosestGuessSchema = new Schema<IClosestGuess>(
         required: true,
       },
       value: {
-        type: Number,
+        type: String,
         required: true,
       },
       timestamp: {
@@ -60,7 +60,7 @@ const ClosestGuessSchema = new Schema<IClosestGuess>(
       },
     }],
     revealedValue: {
-      type: Number,
+      type: String,
     },
   },
   {

@@ -42,7 +42,7 @@ interface GuessSubmittedData {
   activityId: string;
   guestId: string;
   nickname: string;
-  guess: number;
+  guess: string;
 }
 
 interface MessagePostedData {

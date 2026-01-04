@@ -17,11 +17,11 @@ function TimeUnit({ value, label }: TimeUnitProps) {
   return (
     <div className="flex flex-col items-center">
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg min-w-[70px] sm:min-w-[90px]">
-        <span className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-purple to-pink bg-clip-text text-transparent">
+        <span className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
           {value.toString().padStart(2, '0')}
         </span>
       </div>
-      <span className="mt-2 text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase">
+      <span className="mt-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase">
         {label}
       </span>
     </div>
@@ -79,11 +79,11 @@ export default function Countdown({ revealTime, onReveal, className = '' }: Coun
     <div className={className}>
       <div className="flex justify-center items-center gap-3 sm:gap-4">
         <TimeUnit value={timeLeft.days} label="Days" />
-        <div className="text-2xl sm:text-4xl font-bold text-gray-400">:</div>
+        <div className="text-2xl sm:text-4xl font-bold text-gray-700 dark:text-gray-300">:</div>
         <TimeUnit value={timeLeft.hours} label="Hours" />
-        <div className="text-2xl sm:text-4xl font-bold text-gray-400">:</div>
+        <div className="text-2xl sm:text-4xl font-bold text-gray-700 dark:text-gray-300">:</div>
         <TimeUnit value={timeLeft.minutes} label="Minutes" />
-        <div className="text-2xl sm:text-4xl font-bold text-gray-400">:</div>
+        <div className="text-2xl sm:text-4xl font-bold text-gray-700 dark:text-gray-300">:</div>
         <TimeUnit value={timeLeft.seconds} label="Seconds" />
       </div>
     </div>

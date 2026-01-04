@@ -6,7 +6,7 @@ import { sseManager } from '@/lib/sse';
 type GuessEntry = {
   guestId: string;
   nickname: string;
-  value: number;
+  value: string;
   timestamp: Date;
 };
 
@@ -19,15 +19,11 @@ export async function POST(
     const { guestId, nickname, value } = body;
     const { activityId } = await params;
 
-    if (!guestId || !nickname || value === undefined) {
+    if (!guestId || !nickname || value === undefined || value === '') {
       return NextResponse.json(
         { error: 'Guest ID, nickname, and value are required' },
         { status: 400 }
       );
-    }
-
-    if (typeof value !== 'number') {
-      return NextResponse.json({ error: 'Value must be a number' }, { status: 400 });
     }
 
     await connectDB();
@@ -43,14 +39,14 @@ export async function POST(
       guesses[existingGuessIndex] = {
         guestId,
         nickname,
-        value,
+        value: String(value),
         timestamp: new Date(),
       };
     } else {
       guesses.push({
         guestId,
         nickname,
-        value,
+        value: String(value),
         timestamp: new Date(),
       });
     }
@@ -65,7 +61,7 @@ export async function POST(
         activityId,
         guestId,
         nickname,
-        guess: value,
+        guess: String(value),
       }
     );
 

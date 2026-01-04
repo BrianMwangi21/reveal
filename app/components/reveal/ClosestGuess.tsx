@@ -19,10 +19,10 @@ interface ClosestGuessData {
   guesses: Array<{
     guestId: string;
     nickname: string;
-    value: number;
+    value: string;
     timestamp: string;
   }>;
-  revealedValue?: number;
+  revealedValue?: string;
 }
 
 export default function ClosestGuessComponent({ activityId, title, isHost, isRevealed, onDelete }: ClosestGuessProps) {
@@ -42,9 +42,9 @@ export default function ClosestGuessComponent({ activityId, title, isHost, isRev
 
       if (response.ok) {
         setClosestGuess(result.data);
-        const myGuess = result.data.guesses?.find((g: { guestId: string; value: number }) => g.guestId === session?.guestId);
+        const myGuess = result.data.guesses?.find((g: { guestId: string; value: string }) => g.guestId === session?.guestId);
         if (myGuess) {
-          setGuessValue(myGuess.value.toString());
+          setGuessValue(myGuess.value);
         }
       }
     } catch (err) {
@@ -68,8 +68,8 @@ export default function ClosestGuessComponent({ activityId, title, isHost, isRev
       return;
     }
 
-    if (!guessValue || isNaN(parseFloat(guessValue))) {
-      setError('Please enter a valid number');
+    if (!guessValue || guessValue.trim() === '') {
+      setError('Please enter your guess');
       return;
     }
 
@@ -84,7 +84,7 @@ export default function ClosestGuessComponent({ activityId, title, isHost, isRev
         body: JSON.stringify({
           guestId: session.guestId,
           nickname: session.nickname,
-          value: parseFloat(guessValue),
+          value: guessValue.trim(),
         }),
       });
 
@@ -154,7 +154,7 @@ export default function ClosestGuessComponent({ activityId, title, isHost, isRev
           <div className="mb-6">
             <Input
               label="Your Guess"
-              type="number"
+              type="text"
               value={guessValue}
               onChange={(e) => setGuessValue(e.target.value)}
               placeholder="Enter your guess..."
@@ -190,7 +190,7 @@ export default function ClosestGuessComponent({ activityId, title, isHost, isRev
             All Guesses ({closestGuess.guesses.length}) {isRevealed && '(Frozen)'}
           </h4>
           <div className="space-y-2">
-            {[...closestGuess.guesses].sort((a, b) => isRevealed ? a.value - b.value : 0).map((guess) => (
+            {closestGuess.guesses.map((guess) => (
               <div
                 key={guess.guestId}
                 className={`flex items-center justify-between p-3 rounded-lg ${
