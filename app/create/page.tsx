@@ -153,7 +153,7 @@ export default function CreateRoomPage() {
           <p className="text-lg mb-6">
             {createdRoom.name}
           </p>
-          <div className="bg-gradient-to-r from-purple to-pink text-white rounded-2xl p-6 mb-6 shadow-lg">
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl p-6 mb-6 shadow-lg border-2 border-white/20">
             <p className="text-sm mb-2">Share this code with your guests:</p>
             <p className="text-5xl font-bold tracking-wider">{createdRoom.code}</p>
           </div>
