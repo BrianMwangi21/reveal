@@ -11,17 +11,18 @@ type BetVoter = { nickname: string; points: number; option: string };
 type Guess = { nickname: string; value: number };
 type MessageItem = { id: string; guestId: string; nickname: string; content: string; reactions: Map<string, string[]>; timestamp: Date };
 
-export async function GET(request: NextRequest, { params }: { params: { code: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   try {
-    const code = params.code.toUpperCase();
+    const { code } = await params;
+    const roomCode = code.toUpperCase();
 
-    const room = await Room.findOne({ code });
+    const room = await Room.findOne({ code: roomCode });
     if (!room) {
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });
     }
 
-    const guests = await Guest.find({ roomCode: code }).sort({ joinedAt: 1 });
-    const activities = await Activity.find({ roomCode: code });
+    const guests = await Guest.find({ roomCode }).sort({ joinedAt: 1 });
+    const activities = await Activity.find({ roomCode });
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
