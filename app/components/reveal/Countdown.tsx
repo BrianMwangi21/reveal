@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 interface CountdownProps {
   revealTime: Date;
@@ -36,7 +36,6 @@ export default function Countdown({ revealTime, onReveal, className = '' }: Coun
     seconds: 0,
   });
   const [isRevealed, setIsRevealed] = useState(false);
-  const initialized = useRef(false);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -64,11 +63,6 @@ export default function Countdown({ revealTime, onReveal, className = '' }: Coun
         seconds: Math.floor((difference % (1000 * 60)) / 1000),
       };
     };
-
-    if (!initialized.current) {
-      setTimeLeft(calculateTimeLeft());
-      initialized.current = true;
-    }
 
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());

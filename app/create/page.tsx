@@ -17,7 +17,6 @@ const REVEAL_TYPE_OPTIONS = [
 
 export default function CreateRoomPage() {
   const router = useRouter();
-  const [hostId, setHostId] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     revealTime: '',
@@ -37,20 +36,19 @@ export default function CreateRoomPage() {
   const [createdRoom, setCreatedRoom] = useState<{ code: string; name: string } | null>(null);
 
   useEffect(() => {
-    const storedHostId = localStorage.getItem('reveal_host_id');
-    const storedNickname = localStorage.getItem('reveal_host_nickname');
-    
-    if (storedHostId) {
-      setHostId(storedHostId);
-      setFormData((prev) => ({
-        ...prev,
-        host: {
-          id: storedHostId,
-          nickname: storedNickname || prev.host.nickname,
-        },
-      }));
-    }
-  }, []);
+     const storedHostId = localStorage.getItem('reveal_host_id');
+     const storedNickname = localStorage.getItem('reveal_host_nickname');
+     
+     if (storedHostId) {
+       setFormData((prev) => ({
+         ...prev,
+         host: {
+           id: storedHostId,
+           nickname: storedNickname || prev.host.nickname,
+         },
+       }));
+     }
+   }, []);
 
   const handleChange = (field: string, value: string | Date) => {
     setFormData((prev) => {

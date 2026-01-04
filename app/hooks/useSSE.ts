@@ -43,7 +43,53 @@ export function useSSE(roomCode: string, guestId: string, nickname: string, opti
   const eventSourceRef = useRef<EventSource | null>(null);
   const retryCountRef = useRef(0);
   const connectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const optionsRef = useRef(options);
+  const connectRef = useRef<() => void>(() => {});
   const maxRetries = 3;
+
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
+
+  const handleMessage = useCallback((parsedEvent: SSEEvent) => {
+    switch (parsedEvent.type) {
+      case 'guest_joined':
+        optionsRef.current.onGuestJoined?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onGuestJoined>>[0]);
+        break;
+      case 'guest_left':
+        optionsRef.current.onGuestLeft?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onGuestLeft>>[0]);
+        break;
+      case 'vote_cast':
+        optionsRef.current.onVoteCast?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onVoteCast>>[0]);
+        break;
+      case 'guess_submitted':
+        optionsRef.current.onGuessSubmitted?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onGuessSubmitted>>[0]);
+        break;
+      case 'message_posted':
+        optionsRef.current.onMessagePosted?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onMessagePosted>>[0]);
+        break;
+      case 'message_reacted':
+        optionsRef.current.onMessageReacted?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onMessageReacted>>[0]);
+        break;
+      case 'activity_created':
+        optionsRef.current.onActivityCreated?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onActivityCreated>>[0]);
+        break;
+      case 'activity_deleted':
+        optionsRef.current.onActivityDeleted?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onActivityDeleted>>[0]);
+        break;
+      case 'countdown_milestone':
+        optionsRef.current.onCountdownMilestone?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onCountdownMilestone>>[0]);
+        break;
+      case 'reveal_triggered':
+        optionsRef.current.onRevealTriggered?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onRevealTriggered>>[0]);
+        break;
+      case 'keepalive':
+        optionsRef.current.onKeepalive?.();
+        break;
+    }
+
+    optionsRef.current.onEvent?.(parsedEvent);
+  }, []);
 
   const connect = useCallback(() => {
     if (connectTimeoutRef.current) {
@@ -72,44 +118,7 @@ export function useSSE(roomCode: string, guestId: string, nickname: string, opti
 
       try {
         const parsedEvent = JSON.parse(event.data) as SSEEvent;
-        
-        switch (parsedEvent.type) {
-          case 'guest_joined':
-            options.onGuestJoined?.(parsedEvent.data as any);
-            break;
-          case 'guest_left':
-            options.onGuestLeft?.(parsedEvent.data as any);
-            break;
-          case 'vote_cast':
-            options.onVoteCast?.(parsedEvent.data as any);
-            break;
-          case 'guess_submitted':
-            options.onGuessSubmitted?.(parsedEvent.data as any);
-            break;
-          case 'message_posted':
-            options.onMessagePosted?.(parsedEvent.data as any);
-            break;
-          case 'message_reacted':
-            options.onMessageReacted?.(parsedEvent.data as any);
-            break;
-          case 'activity_created':
-            options.onActivityCreated?.(parsedEvent.data as any);
-            break;
-          case 'activity_deleted':
-            options.onActivityDeleted?.(parsedEvent.data as any);
-            break;
-          case 'countdown_milestone':
-            options.onCountdownMilestone?.(parsedEvent.data as any);
-            break;
-          case 'reveal_triggered':
-            options.onRevealTriggered?.(parsedEvent.data as any);
-            break;
-          case 'keepalive':
-            options.onKeepalive?.();
-            break;
-        }
-
-        options.onEvent?.(parsedEvent);
+        handleMessage(parsedEvent);
       } catch (err) {
         console.error('Error parsing SSE event:', err);
       }
@@ -123,13 +132,17 @@ export function useSSE(roomCode: string, guestId: string, nickname: string, opti
         const backoffDelay = Math.min(1000 * Math.pow(2, retryCountRef.current - 1), 4000);
         const jitter = Math.random() * 1000;
         connectTimeoutRef.current = setTimeout(() => {
-          connect();
+          connectRef.current();
         }, backoffDelay + jitter);
       } else {
         setConnectionStatus('error');
       }
     };
-  }, [roomCode, guestId, nickname, options, maxRetries]);
+  }, [roomCode, guestId, nickname, handleMessage]);
+
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   const disconnect = useCallback(() => {
     if (connectTimeoutRef.current) {

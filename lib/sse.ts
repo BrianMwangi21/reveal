@@ -11,7 +11,7 @@ type SSEEventType =
   | 'reveal_triggered'
   | 'keepalive';
 
-interface SSEEvent<T = any> {
+interface SSEEvent<T = unknown> {
   type: SSEEventType;
   data: T;
   timestamp: number;
