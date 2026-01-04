@@ -14,14 +14,7 @@ interface ResultsSummaryProps {
   revealTime: string;
 }
 
-interface Activity {
-  activityId: string;
-  type: string;
-  title: string;
-}
-
 export default function ResultsSummary({ roomCode, revealType, revealContent, revealTime }: ResultsSummaryProps) {
-  const [activities, setActivities] = useState<Activity[]>([]);
   const [betWinners, setBetWinners] = useState<Record<string, string[]>>({});
   const [messageCount, setMessageCount] = useState(0);
   const [guestCount, setGuestCount] = useState(0);
@@ -32,7 +25,6 @@ export default function ResultsSummary({ roomCode, revealType, revealContent, re
       try {
         const activitiesRes = await fetch(`/api/activities?roomCode=${roomCode}`);
         const activitiesData = await activitiesRes.json();
-        setActivities(activitiesData.data || []);
 
         const guestsRes = await fetch(`/api/rooms/${roomCode}/guests`);
         const guestsData = await guestsRes.json();

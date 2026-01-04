@@ -1,0 +1,151 @@
+import { NextRequest, NextResponse } from 'next/server';
+import jsPDF from 'jspdf';
+import Room from '@/lib/models/Room';
+import Guest from '@/lib/models/Guest';
+import Activity from '@/lib/models/Activity';
+import Bet from '@/lib/models/Bet';
+import ClosestGuess from '@/lib/models/ClosestGuess';
+import Message from '@/lib/models/Message';
+
+type BetVoter = { nickname: string; points: number; option: string };
+type Guess = { nickname: string; value: number };
+type MessageItem = { id: string; guestId: string; nickname: string; content: string; reactions: Map<string, string[]>; timestamp: Date };
+
+export async function GET(request: NextRequest, { params }: { params: { code: string } }) {
+  try {
+    const code = params.code.toUpperCase();
+
+    const room = await Room.findOne({ code });
+    if (!room) {
+      return NextResponse.json({ error: 'Room not found' }, { status: 404 });
+    }
+
+    const guests = await Guest.find({ roomCode: code }).sort({ joinedAt: 1 });
+    const activities = await Activity.find({ roomCode: code });
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPosition = 20;
+
+    const addHeader = () => {
+      doc.setFillColor(147, 51, 234);
+      doc.rect(0, 0, pageWidth, 40, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold');
+      doc.text('🎉 Reveal Memories', pageWidth / 2, 25, { align: 'center' });
+      yPosition = 50;
+    };
+
+    const addSection = (title: string) => {
+      doc.setTextColor(147, 51, 234);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text(title, 20, yPosition);
+      yPosition += 10;
+      doc.setDrawColor(147, 51, 234);
+      doc.line(20, yPosition, pageWidth - 20, yPosition);
+      yPosition += 10;
+    };
+
+    const addText = (text: string, fontSize: number = 12, bold: boolean = false) => {
+      doc.setTextColor(60, 60, 60);
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', bold ? 'bold' : 'normal');
+      const lines = doc.splitTextToSize(text, pageWidth - 40);
+      doc.text(lines, 20, yPosition);
+      yPosition += lines.length * (fontSize * 0.5) + 5;
+
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+    };
+
+    const addNewPage = () => {
+      doc.addPage();
+      yPosition = 20;
+    };
+
+    addHeader();
+
+    addSection('Event Details');
+    addText(`Room: ${room.name}`, 14, true);
+    addText(`Room Code: ${code}`, 12, true);
+    addText(`Reveal Type: ${room.revealType}`);
+    addText(`Host: ${room.host.nickname}`);
+    addText(`Created: ${new Date(room.createdAt).toLocaleDateString()}`);
+    addText(`Reveal Time: ${new Date(room.revealTime).toLocaleString()}`);
+
+    if (room.status === 'revealed') {
+      addText(`Revealed On: ${new Date(room.updatedAt).toLocaleString()}`);
+      addText(`Result: ${room.revealContent.value}`, 14, true);
+      if (room.revealContent.caption) {
+        addText(`Caption: ${room.revealContent.caption}`);
+      }
+    }
+
+    addSection(`Guests (${guests.length})`);
+    guests.forEach((guest) => {
+      addText(`• ${guest.nickname} - Joined: ${new Date(guest.joinedAt).toLocaleString()}`);
+    });
+
+    for (const activity of activities) {
+      addNewPage();
+      addSection(activity.title);
+
+      if (activity.type === 'bet') {
+        const bet = await Bet.findOne({ activityId: activity.activityId });
+        if (bet) {
+          bet.options.forEach((option: string) => {
+            const voters = bet.bets.filter((b: BetVoter) => b.option === option);
+            addText(`${option}: ${voters.length} votes`, 12, true);
+            voters.forEach((voter: BetVoter) => {
+              addText(`  - ${voter.nickname} (${voter.points} pts)`);
+            });
+          });
+        }
+      } else if (activity.type === 'closestGuess') {
+        const guess = await ClosestGuess.findOne({ activityId: activity.activityId });
+        if (guess) {
+          addText(`Question: ${guess.question}`, 12, true);
+          addText(`Unit: ${guess.unit}`);
+          guess.guesses.forEach((g: Guess) => {
+            addText(`• ${g.nickname}: ${g.value} ${guess.unit}`);
+          });
+        }
+      } else if (activity.type === 'message') {
+        const msg = await Message.findOne({ activityId: activity.activityId });
+        if (msg && msg.messages) {
+          msg.messages.forEach((m: MessageItem) => {
+            addText(`${m.nickname}:`, 12, true);
+            addText(m.content);
+            addText(`${new Date(m.timestamp).toLocaleString()}`, 10);
+            if (m.reactions && m.reactions.size > 0) {
+              const emojis = Array.from(m.reactions.keys()).join(' ');
+              addText(`Reactions: ${emojis}`);
+            }
+            yPosition += 5;
+          });
+        }
+      }
+    }
+
+    addNewPage();
+    addSection('Footer');
+    addText('Generated by Reveal - Celebration Event Platform');
+    addText(`Generated on: ${new Date().toLocaleString()}`);
+
+    const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+
+    return new NextResponse(pdfBuffer, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${room.name.replace(/[^a-z0-9]/gi, '_')}_memories.pdf"`,
+      },
+    });
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
+  }
+}
