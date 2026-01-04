@@ -364,7 +364,7 @@ export default function RoomPage() {
             </div>
           )}
 
-          {isHost && (
+          {isHost && !isRevealed && (
             <div className="mb-6 sm:mb-8 flex justify-end">
               <ActivityCreator roomCode={code} onActivityCreated={() => {
                 fetch(`/api/activities?roomCode=${code}`)

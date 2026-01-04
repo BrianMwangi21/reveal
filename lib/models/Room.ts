@@ -23,6 +23,7 @@ export interface IRoom extends Document {
   revealContent: RevealContent;
   host: Host;
   status: RevealStatus;
+  expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -84,6 +85,10 @@ const RoomSchema = new Schema<IRoom>(
       enum: ['upcoming', 'active', 'revealed', 'archived'],
       default: 'upcoming',
     },
+    expiresAt: {
+      type: Date,
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -92,5 +97,6 @@ const RoomSchema = new Schema<IRoom>(
 
 RoomSchema.index({ host: 1 });
 RoomSchema.index({ revealTime: 1 });
+RoomSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export default mongoose.models.Room || mongoose.model<IRoom>('Room', RoomSchema);

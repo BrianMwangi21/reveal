@@ -21,8 +21,8 @@ export default function RevealDisplay({ revealType, revealContent, className = '
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-      const colors = revealType === 'gender' 
-        ? ['#FF69B4', '#4169E1', '#FFD700', '#FF1493'] 
+      const colors = revealType === 'gender'
+        ? ['#FF69B4', '#4169E1', '#FFD700', '#FF1493']
         : ['#FFD700', '#FF69B4', '#00CED1', '#9370DB', '#FF6347'];
 
       const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
@@ -53,6 +53,45 @@ export default function RevealDisplay({ revealType, revealContent, className = '
 
     triggerConfetti();
   }, [revealType]);
+
+  const replayConfetti = () => {
+    const triggerConfetti = () => {
+      const duration = 3000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+      const colors = revealType === 'gender'
+        ? ['#FF69B4', '#4169E1', '#FFD700', '#FF1493']
+        : ['#FFD700', '#FF69B4', '#00CED1', '#9370DB', '#FF6347'];
+
+      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+          colors,
+        });
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+          colors,
+        });
+      }, 250);
+    };
+
+    triggerConfetti();
+  };
 
   const getRevealIcon = () => {
     switch (revealType) {
@@ -117,6 +156,17 @@ export default function RevealDisplay({ revealType, revealContent, className = '
           )}
           <div className="mt-6 sm:mt-8 text-4xl sm:text-6xl animate-pulse">
             🎉 🎊 🎉
+          </div>
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={replayConfetti}
+              className="px-6 py-3 bg-white/80 hover:bg-white/90 dark:bg-gray-800/80 dark:hover:bg-gray-800/90 backdrop-blur-sm rounded-xl font-semibold text-gray-700 dark:text-gray-300 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a9.001 9.001 0 01-4.582-9m0 0H9m11 11v-5h-.581m0 0a9.001 9.001 0 01-4.582-9" />
+              </svg>
+              Replay Celebration
+            </button>
           </div>
         </div>
       </div>

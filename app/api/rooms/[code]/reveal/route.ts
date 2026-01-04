@@ -45,6 +45,7 @@ export async function POST(
     }
 
     room.status = 'revealed';
+    room.expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await room.save();
 
     sseManager.broadcastToRoom(code.toUpperCase(), 'reveal_triggered', {
