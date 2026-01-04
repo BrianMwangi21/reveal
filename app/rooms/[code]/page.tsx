@@ -324,7 +324,7 @@ export default function RoomPage() {
               <p className="text-xl sm:text-2xl font-bold mb-4 animate-pulse text-gray-900 dark:text-white">
                 Get Ready!
               </p>
-              <div className="text-9xl sm:text-[12rem] font-extrabold bg-gradient-to-r from-purple via-pink to-blue bg-clip-text text-transparent animate-bounce">
+              <div className="text-9xl sm:text-[12rem] font-extrabold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent animate-bounce">
                 {countdown}
               </div>
             </div>

@@ -48,7 +48,7 @@ export default function RoomSettingsModal({
 }: RoomSettingsModalProps) {
   const [formData, setFormData] = useState({
     name: room.name,
-    revealTime: room.revealTime.slice(0, 16),
+    revealTime: new Date(room.revealTime).toISOString().slice(0, 16),
     revealType: room.revealType,
     revealContent: {
       type: room.revealContent.type,
