@@ -328,6 +328,19 @@ export default function RoomPage() {
                   revealTime={room!.revealTime}
                 />
               </div>
+              <div className="flex justify-center gap-4 mb-8">
+                <Button
+                  onClick={() => window.open(`/api/rooms/${code}/download`, '_blank')}
+                  variant="outline"
+                  size="md"
+                  className="flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707L19.586 19H14a2 2 0 01-2-2v-3a1 1 0 00-1-1V6a1 1 0 00-1-1H7a1 1 0 00-1 1v3a1 1 0 00-1 1zM16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  Download Memories
+                </Button>
+              </div>
             </>
           )}
 
