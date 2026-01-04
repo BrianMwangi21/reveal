@@ -346,11 +346,13 @@ Allow guests to relive the reveal moment and share memories.
 - Room archive logic
 
 ### Definition of Done
-- Guests can replay the reveal animation
-- Voting and prediction results are clear
-- Sharing works to social platforms
-- Memories can be downloaded
-- Rooms expire after defined period
+- [x] Guests can replay the reveal animation
+- [x] Voting and prediction results are clear
+- [x] Sharing works to social platforms
+- [x] Memories can be downloaded
+- [x] Rooms expire after defined period
+
+**Status**: ✅ Completed - January 4, 2026
 
 ---
 
