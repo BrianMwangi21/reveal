@@ -9,6 +9,11 @@ interface BetProps {
   title: string;
   isHost?: boolean;
   isRevealed?: boolean;
+  revealContent?: {
+    type: 'text' | 'image' | 'video';
+    value: string;
+    caption?: string;
+  };
   onDelete?: () => void;
 }
 
@@ -23,7 +28,7 @@ interface BetData {
   }>;
 }
 
-export default function BetComponent({ activityId, title, isHost, isRevealed, onDelete }: BetProps) {
+export default function BetComponent({ activityId, title, isHost, isRevealed, revealContent, onDelete }: BetProps) {
   const [bet, setBet] = useState<BetData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState('');
@@ -110,6 +115,14 @@ export default function BetComponent({ activityId, title, isHost, isRevealed, on
     const totalPoints = optionBets.reduce((sum, b) => sum + b.points, 0);
     return { count: optionBets.length, totalPoints };
   };
+
+  const getCorrectOption = () => {
+    if (!revealContent || !bet) return null;
+    const revealValue = revealContent.value.toLowerCase();
+    return bet.options.find(opt => opt.toLowerCase() === revealValue) || null;
+  };
+
+  const correctOption = getCorrectOption();
 
   if (loading) {
     return (
@@ -205,9 +218,35 @@ export default function BetComponent({ activityId, title, isHost, isRevealed, on
       )}
 
       {isRevealed && (
-        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-center">
-          <p className="text-gray-600 dark:text-gray-400 font-medium">⏰ Betting closed - Reveal complete!</p>
-        </div>
+        <>
+          {correctOption && (
+            <div className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg p-4 mb-6 animate-scale">
+              <p className="text-lg font-bold text-purple-700 dark:text-purple-300 mb-2">
+                🎉 Correct Answer: {correctOption}
+              </p>
+              <div className="mt-3">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Correct Voters:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {bet?.bets.filter(b => b.option === correctOption).map((voter) => (
+                    <span
+                      key={voter.guestId}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-500 text-white"
+                    >
+                      {voter.nickname}
+                      {voter.guestId === session?.guestId && ' (You)'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-center">
+            <p className="text-gray-600 dark:text-gray-400 font-medium">⏰ Betting closed - Reveal complete!</p>
+          </div>
+        </>
       )}
     </div>
   );

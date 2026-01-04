@@ -187,10 +187,10 @@ export default function ClosestGuessComponent({ activityId, title, isHost, isRev
       {closestGuess?.guesses && closestGuess.guesses.length > 0 && (
         <div className="mt-6">
           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-            All Guesses ({closestGuess.guesses.length})
+            All Guesses ({closestGuess.guesses.length}) {isRevealed && '(Frozen)'}
           </h4>
           <div className="space-y-2">
-            {closestGuess.guesses.map((guess) => (
+            {[...closestGuess.guesses].sort((a, b) => isRevealed ? a.value - b.value : 0).map((guess) => (
               <div
                 key={guess.guestId}
                 className={`flex items-center justify-between p-3 rounded-lg ${

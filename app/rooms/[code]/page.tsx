@@ -12,6 +12,7 @@ import ClosestGuessComponent from '@/app/components/reveal/ClosestGuess';
 import MessageBoard from '@/app/components/reveal/MessageBoard';
 import Countdown from '@/app/components/reveal/Countdown';
 import RevealDisplay from '@/app/components/reveal/RevealDisplay';
+import ResultsSummary from '@/app/components/reveal/ResultsSummary';
 import ThemeSwitcher from '@/app/components/ui/ThemeSwitcher';
 import DarkModeToggle from '@/app/components/ui/DarkModeToggle';
 import type { RevealType } from '@/lib/models/Room';
@@ -311,12 +312,22 @@ export default function RoomPage() {
           )}
 
           {isRevealed && !countdown && (
-            <div className="mb-8">
-              <RevealDisplay
-                revealType={room!.revealType as RevealType}
-                revealContent={room!.revealContent as { type: 'text' | 'image' | 'video'; value: string; caption?: string }}
-              />
-            </div>
+            <>
+              <div className="mb-8">
+                <RevealDisplay
+                  revealType={room!.revealType as RevealType}
+                  revealContent={room!.revealContent as { type: 'text' | 'image' | 'video'; value: string; caption?: string }}
+                />
+              </div>
+              <div className="mb-8">
+                <ResultsSummary
+                  roomCode={code}
+                  revealType={room!.revealType as RevealType}
+                  revealContent={room!.revealContent as { type: 'text' | 'image' | 'video'; value: string; caption?: string }}
+                  revealTime={room!.revealTime}
+                />
+              </div>
+            </>
           )}
 
           {isHost && !isRevealed && !countdown && (
@@ -362,6 +373,7 @@ export default function RoomPage() {
                   title={activity.title}
                   isHost={isHost}
                   isRevealed={isRevealed}
+                  revealContent={room!.revealContent as { type: 'text' | 'image' | 'video'; value: string; caption?: string }}
                   onDelete={() => {
                     fetch(`/api/activities?roomCode=${code}`)
                       .then((res) => res.json())
