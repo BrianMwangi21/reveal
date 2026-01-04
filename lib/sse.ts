@@ -1,4 +1,4 @@
-type SSEEventType = 
+type SSEEventType =
   | 'guest_joined'
   | 'guest_left'
   | 'vote_cast'
@@ -9,6 +9,7 @@ type SSEEventType =
   | 'activity_deleted'
   | 'countdown_milestone'
   | 'reveal_triggered'
+  | 'reveal_time_changed'
   | 'keepalive';
 
 interface SSEEvent<T = unknown> {
@@ -89,6 +90,12 @@ interface CountdownMilestoneData {
   milestone: '1min' | '10sec' | '5sec';
 }
 
+interface RevealTimeChangedData {
+  roomCode: string;
+  newRevealTime: string;
+  oldRevealTime: string;
+}
+
 interface KeepaliveData {
   ping: string;
 }
@@ -104,6 +111,7 @@ type SSEEventDataMap = {
   activity_deleted: ActivityDeletedData;
   countdown_milestone: CountdownMilestoneData;
   reveal_triggered: RevealTriggeredData;
+  reveal_time_changed: RevealTimeChangedData;
   keepalive: KeepaliveData;
 };
 

@@ -73,6 +73,13 @@ export default function RoomPage() {
       setRoom((prev) => prev ? { ...prev, status: 'revealed' } : null);
       startCountdownSequence();
     },
+    onRevealTimeChanged: async () => {
+      const response = await fetch(`/api/rooms/${code}`);
+      const result = await response.json();
+      if (result.success) {
+        setRoom(result.data);
+      }
+    },
   });
 
   useEffect(() => {
@@ -225,6 +232,17 @@ export default function RoomPage() {
               </div>
               <ThemeSwitcher />
               <DarkModeToggle />
+              {isHost && (
+                <button
+                  onClick={() => router.push(`/rooms/${code}/dashboard`)}
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-full hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+                  title="Host Dashboard"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </button>
+              )}
               <button
                 onClick={() => navigator.clipboard.writeText(`${window.location.origin}/rooms/${room!.code.toUpperCase()}`)}
                 className="bg-white dark:bg-gray-700 text-gray-700 dark:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"

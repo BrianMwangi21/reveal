@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-type SSEEventType = 
+type SSEEventType =
   | 'guest_joined'
   | 'guest_left'
   | 'vote_cast'
@@ -11,6 +11,7 @@ type SSEEventType =
   | 'activity_deleted'
   | 'countdown_milestone'
   | 'reveal_triggered'
+  | 'reveal_time_changed'
   | 'keepalive';
 
 interface SSEEvent<T = unknown> {
@@ -33,6 +34,7 @@ interface UseSSEOptions {
   onActivityDeleted?: (data: { activityId: string; roomCode: string }) => void;
   onCountdownMilestone?: (data: { remainingSeconds: number; milestone: '1min' | '10sec' | '5sec' }) => void;
   onRevealTriggered?: (data: { roomCode: string; revealType: string; revealContent: { type: 'text' | 'image' | 'video'; value: string; caption?: string } }) => void;
+  onRevealTimeChanged?: (data: { roomCode: string; newRevealTime: string; oldRevealTime: string }) => void;
   onKeepalive?: () => void;
 }
 
@@ -82,6 +84,9 @@ export function useSSE(roomCode: string, guestId: string, nickname: string, opti
         break;
       case 'reveal_triggered':
         optionsRef.current.onRevealTriggered?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onRevealTriggered>>[0]);
+        break;
+      case 'reveal_time_changed':
+        optionsRef.current.onRevealTimeChanged?.(parsedEvent.data as Parameters<NonNullable<typeof optionsRef.current.onRevealTimeChanged>>[0]);
         break;
       case 'keepalive':
         optionsRef.current.onKeepalive?.();

@@ -362,31 +362,34 @@ Allow guests to relive the reveal moment and share memories.
 Give hosts tools to manage their reveal events.
 
 ### Architecture Notes
-- **Dashboard Page**: `/dashboard` for host to see all their rooms
-- **Analytics**: Guest count, participation rates, peak activity times
+- **Dashboard Page**: `/rooms/[code]/dashboard` for per-room host management
+- **Analytics**: Guest count, participation rates, activity breakdown
 - **Settings**: Edit room details, extend reveal time, add activities
-- **Notifications**: Email guests before reveal (optional, future)
+- **Notifications**: SSE for real-time updates when time changes
 
 ### Tasks
-- [ ] Create host dashboard page
-- [ ] Display list of host's rooms with status (upcoming, active, revealed, archived)
-- [ ] Add analytics cards (guest count, activity participation)
-- [ ] Build room settings modal
-- [ ] Implement "Extend Time" feature
-- [ ] Add "Emergency Reveal" button
-- [ ] Room search and filtering
+- [x] Create host dashboard page
+- [x] Display room status (upcoming, active, revealed, archived)
+- [x] Add analytics cards (guest count, activity participation)
+- [x] Build room settings modal
+- [x] Implement "Extend Time" feature
+- [x] Add "Emergency Reveal" button
+- [ ] Room search and filtering (not needed - per-room dashboard)
 
 ### Deliverables
-- Dashboard page at `app/dashboard/page.tsx`
+- Dashboard page at `app/rooms/[code]/dashboard/page.tsx`
 - Room settings components
 - Analytics cards
-- Room search/filter utilities
+- API endpoint for updating room settings
 
 ### Definition of Done
-- Hosts can see all their rooms
-- Analytics display meaningful insights
-- Room settings allow modifications
-- Emergency reveal works
+- [x] Hosts can access dashboard for their room
+- [x] Analytics display meaningful insights
+- [x] Room settings allow modifications (name, reveal time, type, content)
+- [x] Emergency reveal works
+- [x] Extend time notifies guests via SSE
+
+**Status**: ✅ Completed - January 4, 2026
 
 ---
 
